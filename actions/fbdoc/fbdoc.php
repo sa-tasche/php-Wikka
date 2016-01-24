@@ -30,8 +30,10 @@
 			$item = $this->GetPageTag( );
 	}
 
-	If( $value )
+	if (isset($_POST['value']))
 		$value = $this->ReturnSafeHTML( $value );
+	else
+		$value = "";
 
 	switch( $item )
 	{
@@ -89,6 +91,4 @@
 			Print( "<i>Unknown item " . $item . "</i>" );
 		}
 	}
-				
-				
 ?>
