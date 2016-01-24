@@ -1140,7 +1140,7 @@ $text = preg_replace_callback(
 	# Simple Tables	
 	"\|(?:[^\|])?\|(?:\(.*?\))?(?:\{[^\{\}]*?\})?(?:\n)?|".
 	# action
-	"(?<!\{)\{\{[^\{|\}]*?\}\}(?!\})|".
+	"(?<!\{)\{\{[^\{\}]*?\}\}(?!\})|".
 	# InterWiki link (deprecated, as pagenames may now contain spaces)
 	# Use forced links with a | separator instead
 	"\b[[:upper:]][[:alpha:]]+[:](?![=_#])\S*\b|".
