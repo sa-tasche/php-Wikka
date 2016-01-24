@@ -1,94 +1,93 @@
 <?php
+	// Extract {{fbdoc}} action's parameters from vars array
+	// We support "item" and "value": {{fbdoc item="..." value="..."}}
 
-	$itemTB = array( 
-		'category' => 'Category', 
-		'keyword' => 'Keyword', 
-		'title' => 'Title', 
-		'syntax' => 'Syntax', 
-		'usage' => 'Usage',
-		'param' => 'Parameters', 
-		'ret'=> 'Return Value', 
-		'desc' => 'Description', 
-		'ex' => 'Examples', 
-		'lang' => 'Dialect Differences',
-		'target' => 'Platform Differences',
-		'diff' => 'Differences from QB',
-		'see' => 'See also', 
-		'back' => 'Back',
-		'close' => 'Close',
-		'tag' => 'tag',
-		'filename' => 'filename' 
-	);
-    
-	If( $item )
-		$item = $this->ReturnSafeHTML( $item );
-	Else 
-	{ 
-		If( $wikka_vars ) 
-			$item = $this->ReturnSafeHTML( $wikka_vars );
-		Else 
-			$item = $this->GetPageTag( );
+	if (array_key_exists('item', $vars)) {
+		$item = $vars['item'];
+	} else {
+		$item = $this->GetPageTag();
 	}
 
-	if (isset($_POST['value']))
-		$value = $this->ReturnSafeHTML( $value );
-	else
-		$value = "";
+	if (array_key_exists('value', $vars)) {
+		$value = $vars['value'];
+	} else {
+		$value = 'fbdoc_value_unspecified';
+	}
 
-	switch( $item )
-	{
-	Case 'title':
-		Print( "<h3>$value</h3>" );
-		break;
+	$item = $this->ReturnSafeHTML($item);
+	$value = $this->ReturnSafeHTML($value);
 
-	Case 'section':
-		Print( "<b><u>$value</u></b>" );
-		break;
-
-	Case 'subsect':
-		Print( "<b>$value</b>" );
+	switch ($item) {
+	case 'title':
+		print("<h3>$value</h3>");
 		break;
 
-	Case 'category':
-		list( $page, $name ) = explode( '|', $value );
-		
-		Print( "<a name=\"#cat_$page\"></a><b>$name:</b>" );
-		break;
-			
-	Case 'keyword':
-		list( $page, $name ) = explode( '|', $value );
-		
-		$class = '';
-		/*If( $this->ExistsPage( $page ) == FALSE )
-			$class = 'class="missingpage"';*/
-				
-		Print( "<a $class href=\"" . $this->config['base_url'] . $page . "\">$name</a>" );
-		break;
-	
-	Case 'back':
-		list( $page, $name ) = explode( '|', $value );
-		
-		Print( "<div align=\"center\">Back to <a href=\"" . $this->config['base_url'] . $page . "\">$name</a></div>" );
+	case 'section':
+		print("<b><u>$value</u></b>");
 		break;
 
-	Case 'close':
+	case 'subsect':
+		print("<b>$value</b>");
 		break;
 
-	Case 'tag':
-		break;
-
-	Case 'filename':
-		break;
-	
-	default:
-		If( $itemTB[$item] )
-		{
-			$name = $itemTB[$item];
-			Print( "<b>$name:</b>" );
+	case 'category':
+	case 'keyword':
+	case 'back':
+		// If value contains a | char, split it up into page/name:
+		// {{fbdoc ... value="page|name"}}
+		$pagename = explode('|', $value, 2);
+		$page = $pagename[0];
+		if (count($pagename) > 1) {
+			$name = $pagename[1];
+		} else {
+			$name = $page;
 		}
-		else
-		{
-			Print( "<i>Unknown item " . $item . "</i>" );
+
+		switch ($item) {
+		case 'category':
+			print("<a name=\"#cat_$page\"></a><b>$name:</b>");
+			break;
+		case 'keyword':
+			print("<a href=\"" . $this->config['base_url'] . $page . "\">$name</a>");
+			break;
+		case 'back':
+			print("<div align=\"center\">Back to <a href=\"" . $this->config['base_url'] . $page . "\">$name</a></div>");
+			break;
+		}
+
+		break;
+
+	case 'close':
+	case 'tag':
+	case 'filename':
+		break;
+
+	default:
+		$itemTB = array( 
+			'category' => 'Category', 
+			'keyword' => 'Keyword', 
+			'title' => 'Title', 
+			'syntax' => 'Syntax', 
+			'usage' => 'Usage',
+			'param' => 'Parameters', 
+			'ret'=> 'Return Value', 
+			'desc' => 'Description', 
+			'ex' => 'Examples', 
+			'lang' => 'Dialect Differences',
+			'target' => 'Platform Differences',
+			'diff' => 'Differences from QB',
+			'see' => 'See also', 
+			'back' => 'Back',
+			'close' => 'Close',
+			'tag' => 'tag',
+			'filename' => 'filename' 
+		);
+
+		if ($itemTB[$item]) {
+			$name = $itemTB[$item];
+			print("<b>$name:</b>");
+		} else {
+			print("<i>fbdoc action: unknown item " . $item . "</i>");
 		}
 	}
 ?>
