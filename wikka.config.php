@@ -76,6 +76,6 @@ $wakkaConfig = array(
 	'wakka_version' => '1.3.6',
 	'accept_new_users' => '0',
 	'show_attached_files' => '0',
-	'max_upload_size' => '262144',
+	'max_upload_size' => '1',
 	'stylesheet_hash' => '5f75d');
 ?>
