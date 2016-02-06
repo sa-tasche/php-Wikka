@@ -2,6 +2,11 @@
 /**
  * Display a list of recently commented pages.
  *
+ * Usage: {{recentlycommented}}
+ *
+ * Optionally, setting the "user=" GET param will display recently
+ * commented pages only for the specified user.
+ *
  * @package		Actions
  * @version		$Id: recentlycommented.php 915 2008-02-17 09:24:58Z BrianKoontz $
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
@@ -31,9 +36,9 @@ if (!defined('NO_READABLE_RECENTLY_COMMENTED')) define ('NO_READABLE_RECENTLY_CO
 $readable = 0;
 
 $username = '';
-if(isset($_REQUEST['user']))
+if(isset($_GET['user']))
 {
-	$username = $this->htmlspecialchars_ent($_REQUEST['user']);
+	$username = $this->htmlspecialchars_ent($_GET['user']);
 }
 
 echo $this->Format(RECENTLY_COMMENTED_HEADING.' --- ');
