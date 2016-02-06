@@ -2015,7 +2015,7 @@ class Wakka
 	 *			(and use that in the Formatter, of course)
 	 * @todo	move regexes to library #34
 	 */
-	function CleanTextNode($textvalue, $pattern_prohibited_chars = '/[^A-Za-z0-9_:.\-\s]/', $decode_html_entities = TRUE)
+	function CleanTextNode($textvalue, $pattern_prohibited_chars = '/[^A-Za-z0-9_:.\s-]/', $decode_html_entities = TRUE)
 	{
 		// START -- nodeToTextOnly
 		$textvalue = trim($textvalue);
@@ -2182,6 +2182,8 @@ class Wakka
 	 */
 	function existsPage($page, $prefix='', $dblink=NULL, $active=TRUE)
 	{
+		// Always replace '_' with ws
+		$page = preg_replace('/_+/', ' ', $page);
 		// init
 		$count = 0;
 		$table_prefix = (empty($prefix) && isset($this)) ? $this->GetConfigValue('table_prefix') : $prefix;
@@ -2562,6 +2564,31 @@ class Wakka
 		}
 		exit;
 	}
+
+	/**
+	 * Returns the name of the referring page, if internal page
+	 *
+	 * @author	{@link http://wikkawiki.org/TormodHaugen Tormod Haugen}
+	 *
+	 * @access	public
+	 * @since	Wikka 1.3.7
+	 *
+	 * @return string name of refering page if internal, or NULL
+	 */
+	function GetReferrerPage()
+	{
+		preg_match('/^(.*)ReferrerMarker/', $this->Href('', 'ReferrerMarker'), $match);	// @@@ use wikka_url here!
+		$regex_referrer = '@^'.preg_quote($match[1], '@').'([^\/\?&]*)@';
+		if (isset($_SERVER['HTTP_REFERER']) && preg_match($regex_referrer, $_SERVER['HTTP_REFERER'], $match))
+		{
+			return $match[1];
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+
 
 	/**
 	 * Return the pagename (with optional handler appended).
@@ -3218,7 +3245,7 @@ class Wakka
 			$handler = '';
 		}
 		#$tag = ($validPage) ? $tag : '';
-		if (!empty($tag) && !$this->existspage($tag))
+		if (!empty($tag) && !$this->existsPage($tag))
 		{
 			$tag = '';	// Href() will pick up current page name if none specified
 		}
@@ -3894,7 +3921,10 @@ class Wakka
 	{
 		//unset($_SESSION['show_comments']);
 		$csrfToken = $_SESSION['CSRFToken'];
-		$_SESSION = [];
+        #$_SESSION = [];
+        session_destroy();
+        session_id('');
+        unset($_SESSION['user']);
 		$_SESSION['CSRFToken'] = $csrfToken;
 		$this->DeleteCookie('user_name');
 		$this->DeleteCookie('pass');
