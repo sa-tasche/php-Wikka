@@ -172,78 +172,60 @@ if (!function_exists('mysql_connect'))
 	die(ERROR_MYSQL_SUPPORT_MISSING);
 }
 
-if (! function_exists('mkdir_r')) 
+/**
+ * Create upload folder if it does not exist
+ */
+if (!function_exists('mkdir_r'))
 {
-	/**
-	 * Create upload folder if it does not exist yet.
-	 * 
-	 * @param $dir
-	 * @return bool
-	 */
-	function mkdir_r($dir)
+	function mkdir_r ($dir)
 	{
-		if (strlen($dir) == 0) 
+		if (strlen($dir) == 0)
 		{
 			return 0;
 		}
-		if (is_dir($dir)) 
+		if (is_dir($dir))
 		{
 			return 1;
 		}
-		elseif (dirname($dir) == $dir) 
+		elseif (dirname($dir) == $dir)
 		{
 			return 1;
 		}
-		return (@mkdir($dir,0755));
+		return (mkdir_r(dirname($dir)) and mkdir($dir,0755));
 	}
 }
 
-if (! function_exists('bytesToHumanReadableUsage')) {
-	/**
-	* Converts bytes to a human readable string
-	* @param int $bytes Number of bytes
-	* @param int $precision Number of decimal places to include in return string
-	* @param array $names Custom usage strings
-	* @return string formatted string rounded to $precision
-	*/
-	function bytesToHumanReadableUsage($bytes, $precision = 2, $names = '')
+/**
+ * Convert bytes to a human readable string
+ *
+ * @param int $bytes Number of bytes
+ * @param int $precision Number of decimal places to include in return string
+ * @param array $names Custom usage strings
+ * @return string formatted string rounded to $precision
+ */
+if (!function_exists('bytesToHumanReadableUsage'))
+{
+	function bytesToHumanReadableUsage($bytes, $precision = 0, $names = '')
 	{
-		if (!is_numeric($bytes) || $bytes < 0) {
-			return false;
-		}
-   
-		for ($level = 0; $bytes >= 1024; $level++) {
-			$bytes /= 1024;
-		}
-
-		switch ($level)
+		if (!is_numeric($bytes) || $bytes < 0)
 		{
-		case 0:
-			$suffix = (isset($names[0])) ? $names[0] : 'Bytes';
-			break;
-		case 1:
-			$suffix = (isset($names[1])) ? $names[1] : 'KB';
-			break;
-		case 2:
-			$suffix = (isset($names[2])) ? $names[2] : 'MB';
-			break;
-		case 3:
-			$suffix = (isset($names[3])) ? $names[3] : 'GB';
-			break;
-		case 4:
-			$suffix = (isset($names[4])) ? $names[4] : 'TB';
-			break;
-		default:
-			$suffix = (isset($names[$level])) ? $names[$level] : '';
-			break;
+			$bytes = 0;
 		}
-
-		if (empty($suffix)) {
-			trigger_error('Unable to find suffix for case ' . $level);
-			return false;
+		if (!is_numeric($precision) || $precision < 0)
+		{
+			$precision = 0;
 		}
-
-		return round($bytes, $precision) . ' ' . $suffix;
+		if (!is_array($names))
+		{
+			$names = array('b','Kb','Mb','Gb','Tb','Pb','Eb');
+		}
+		$level = floor(log($bytes)/log(1024));
+		$suffix = '';
+		if ($level < count($names))
+		{
+			$suffix = $names[$level];
+		}
+		return $bytes? round($bytes/pow(1024, $level), $precision) .  $suffix : $bytes;
 	}
 }
 
