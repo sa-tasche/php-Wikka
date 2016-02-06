@@ -8,7 +8,7 @@
  * commented pages only for the specified user.
  *
  * @package		Actions
- * @version		$Id: recentlycommented.php 915 2008-02-17 09:24:58Z BrianKoontz $
+ * @version		$Id: recentlycommented.php 1096 2008-05-26 04:40:18Z BrianKoontz $
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @filesource
  * 
