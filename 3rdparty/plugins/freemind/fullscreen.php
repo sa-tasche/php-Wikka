@@ -7,7 +7,7 @@
  * @author	{@link http://wikkawiki.org/JsnX Jason Tourtelotte} (first draft)
  * @author	{@link http://wikkawiki.org/JavaWoman Marjolein Katsma} (fixed notices, secured parameters, XHTML compliancy)
  * @license  http://gnu.org/copyleft/gpl.html GNU GPL
- * @version  $Id: fullscreen.php 1267 2008-12-20 03:30:54Z BrianKoontz $
+ * @version  $Id$
  * @filesource
  */
 

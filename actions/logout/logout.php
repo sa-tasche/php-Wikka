@@ -3,7 +3,7 @@
  * Display a login/logout button.
  *
  * @package Actions
- * @version		$Id: logout.php 1752 2010-12-30 08:30:22Z BrianKoontz $
+ * @version		$Id$
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @filesource
  *

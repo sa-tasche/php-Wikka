@@ -4,7 +4,7 @@
  * 
  * @package		Handlers
  * @subpackage	Referrers	
- * @version		$Id: referrers_sites.php 1672 2010-06-29 20:00:43Z BrianKoontz $
+ * @version		$Id$
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @filesource
  * 
