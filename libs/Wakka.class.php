@@ -836,7 +836,7 @@ class Wakka
 	 * 			- ENT_QUOTES:   escapes &, <, >, double and single quotes
 	 * @return	string	converted string
 	 */
-	function hsc_secure($string, $quote_style=ENT_COMPAT)
+	static function hsc_secure($string, $quote_style=ENT_COMPAT)
 	{
 		// init
 		$aTransSpecchar = array('&' => '&amp;',
@@ -3262,7 +3262,7 @@ class Wakka
 		}
 
 		// add validation key fields used against FormSpoofing
-		if('post' == $formMethod)
+		if('post' == strtolower($formMethod))
 		{
 			$hidden['CSRFToken'] = $_SESSION['CSRFToken'];
 		}

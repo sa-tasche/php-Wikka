@@ -71,6 +71,82 @@ if (!defined('MINIMUM_MYSQL_VERSION'))	define('MINIMUM_MYSQL_VERSION', '4.1');
 /**#@-*/
 // ----------------------------- END BASIC CONSTANTS ---------------------------
 
+// ----------------------------- HELPER FUNCTIONS ---------------------------
+/**
+ * Shamelessly lifted from libs/Wakka.class.php.  See that file for
+ * documentation, credits, etc.
+ * @see Wakka::htmlspecialchars_ent()
+**/
+if(!function_exists('htmlspecialchars_ent'))
+{
+	function htmlspecialchars_ent($text,$quote_style=ENT_COMPAT,$doctype='HTML')
+	{
+		// re-establish default if overwritten because of third parameter
+		// [ENT_COMPAT] => 2
+		// [ENT_QUOTES] => 3
+		// [ENT_NOQUOTES] => 0
+		if (!in_array($quote_style,array(ENT_COMPAT,ENT_QUOTES,ENT_NOQUOTES)))
+		{
+			$quote_style = ENT_COMPAT;
+		}
+
+		// define patterns
+		$terminator = ';|(?=($|[\n<]|&lt;))';	// semicolon; or end-of-string, newline or tag
+		$numdec = '#[0-9]+';					// numeric character reference (decimal)
+		$numhex = '#x[0-9a-f]+';				// numeric character reference (hexadecimal)
+		if ($doctype == 'XML')					// pure XML allows only named entities for special chars
+		{
+			// only valid named entities in XML (case-sensitive)
+			$named = 'lt|gt|quot|apos|amp';
+			$ignore_case = '';
+			$entitystring = $named.'|'.$numdec.'|'.$numhex;
+		}
+		else									// (X)HTML
+		{
+			$alpha  = '[a-z]+';					// character entity reference TODO $named='eacute|egrave|ccirc|...'
+			$ignore_case = 'i';					// names can consist of upper and lower case letters
+			$entitystring = $alpha.'|'.$numdec.'|'.$numhex;
+		}
+		$escaped_entity = '&amp;('.$entitystring.')('.$terminator.')';
+
+		$output = Wakka::hsc_secure($text,$quote_style);
+
+		// "repair" escaped entities
+		// modifiers: s = across lines, i = case-insensitive
+		$output = preg_replace('/'.$escaped_entity.'/s'.$ignore_case,"&$1;",$output);
+
+		// return output
+		return $output;
+	}
+}
+
+/**
+ * Shamelessly lifted from libs/Wakka.class.php.  See that file for
+ * documentation, credits, etc.
+ * @see Wakka::GetSafeVar()
+**/
+if(!function_exists('GetSafeVar'))
+{
+	function GetSafeVar($varname, $gpc='get')
+	{
+		$safe_var = NULL;
+		if ($gpc == 'post')
+		{
+			$safe_var = isset($_POST[$varname]) ? $_POST[$varname] : NULL;
+		}
+		elseif ($gpc == 'get')
+		{
+			$safe_var = isset($_GET[$varname]) ? $_GET[$varname] : NULL;
+		}
+		elseif ($gpc == 'cookie')
+		{
+			$safe_var = isset($_COOKIE[$varname]) ? $_COOKIE[$varname] : NULL;
+		}
+		return (htmlspecialchars_ent($safe_var));
+	}
+}
+// ----------------------------- END HELPER FUNCTIONS --------------------------
+
 // ------------ CRITICAL ERROR MESSAGES USED BEFORE LANG FILE LOADED -----------
 // Do not move these declaration to lang files.
 if(!defined('ERROR_WRONG_PHP_VERSION')) define('ERROR_WRONG_PHP_VERSION', 'Wikka requires PHP %s or higher!');  // %s - version number
@@ -325,7 +401,7 @@ $wakkaDefaultConfig = array(
 	// template
 	'wikka_template_path' 		=> 'plugins/templates'.PATH_DIVIDER.'templates',		# (location of Wikka template files - REQUIRED)
 	'feedcreator_path'			=> '3rdparty/core/feedcreator',
-   	'menu_config_path'			=> 'config', #858
+   	'menu_config_path'			=> 'plugins/config'.PATH_DIVIDER.'config', #858
 	'safehtml_path'				=> '3rdparty/core/safehtml',
 	'referrers_purge_time'		=> '30',
 	'pages_purge_time'			=> '0',
@@ -410,6 +486,8 @@ if(isset($wakkaConfig['wikka_formatter_path']) && preg_match('/plugins\/formatte
 	$wakkaConfig['wikka_formatter_path'] = "plugins/formatters," .  $wakkaConfig['wikka_formatter_path'];
 if(isset($wakkaConfig['lang_path']) && preg_match('/plugins\/lang/', $wakkaConfig['lang_path']) <= 0)
 	$wakkaConfig['lang_path'] = "plugins/lang," .  $wakkaConfig['lang_path'];
+if(isset($wakkaConfig['menu_config_path']) && preg_match('/plugins\/config/', $wakkaConfig['menu_config_path']) <= 0)
+	$wakkaConfig['menu_config_path'] = "plugins/config," .  $wakkaConfig['menu_config_path'];
 
 $wakkaConfig = array_merge($wakkaDefaultConfig, $wakkaConfig);	// merge defaults with config from file
 
@@ -518,7 +596,7 @@ if (file_exists($multisite_configfile))
 */
 
     $localDefaultConfig = array(
-    	'menu_config_path'			=> $configpath.DIRECTORY_SEPARATOR.'config'.PATH_DIVIDER.'config',
+    	'menu_config_path'			=> $configpath.DIRECTORY_SEPARATOR.'config'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'config'.PATH_DIVIDER.'config',
         'action_path'				=> $configpath.DIRECTORY_SEPARATOR.'actions'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'actions'.PATH_DIVIDER.'actions',
         'handler_path'				=> $configpath.DIRECTORY_SEPARATOR.'handlers'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'handlers'.PATH_DIVIDER.'handlers',
         'wikka_formatter_path'		=> $configpath.DIRECTORY_SEPARATOR.'formatters'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'formatters'.PATH_DIVIDER.'formatters',        # (location of Wikka formatter - REQUIRED)
@@ -595,7 +673,7 @@ if ($wakkaConfig['wakka_version'] !== WAKKA_VERSION)
 	 * installer (which will receive this data) is passed as a $_GET parameter!
 	 */
 	$installAction = 'default';
-	if (isset($_GET['installAction'])) $installAction = trim($_GET['installAction']);	#312
+	if (isset($_GET['installAction'])) $installAction = trim(GetSafeVar('installAction'));	#312
 	if (file_exists('setup'.DIRECTORY_SEPARATOR.'header.php'))
 	include('setup'.DIRECTORY_SEPARATOR.'header.php'); else print '<em class="error">'.ERROR_SETUP_HEADER_MISSING.'</em>'; #89
 	if
@@ -625,7 +703,7 @@ if(!isset($_SESSION['CSRFToken']))
  *
  * @todo files action uses POST, everything else uses GET #312
  */
-$wakka = $_GET['wakka']; #312
+$wakka = GetSafeVar('wakka'); #312
 
 /**
  * Remove leading slash.
@@ -689,6 +767,10 @@ if(NULL != $user)
  * Run the engine.
  */
 if (!isset($handler)) $handler='';
+
+# Add Content-Type header (can be overridden by handlers)
+header('Content-Type: text/html; charset=utf-8');
+
 $wakka->Run($page, $handler);
 $content =  ob_get_contents();
 /**
@@ -714,8 +796,8 @@ header("Cache-Control: no-cache");
 
 $etag =  md5($content);
 header('ETag: '.$etag);
-
 header('Content-Length: '.$page_length);
+
 ob_end_clean();
 
 /**
