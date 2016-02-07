@@ -61,7 +61,7 @@ $language_data = array (
             'Tab', 
 
             'System', 'Swap', 'Sub', 'StrPtr', 'String', 'Str', 'Stop', 'Step', 
-            'stdcall', 'Static', 'Sqr', 'Spc', 'Space', 'Sleep', 'SizeOf', 'Single', 
+            'Stdcall', 'Static', 'Sqr', 'Spc', 'Space', 'Sleep', 'SizeOf', 'Single', 
             'Sin', 'Shr', 'Short', 'Shl', 'Shell', 'Shared', 'Sgn', 'SetTime', 
             'SetMouse', 'SetEnviron', 'SetDate', 'Select Case', 'Select', 'Seek', 
             'Second', 'Scrn', 'ScreenUnlock', 'ScreenSync', 'ScreenSet', 'ScreenRes', 
@@ -76,7 +76,7 @@ $language_data = array (
             'ProcPtr', 'Private:', 'Private', 'Print Using', 'Print', 
             'Property', 'PReset', 'Preserve', 'Pos', 'PokeS', 'PokeI', 'Poke', 
             'Pointer', 'Point', 'PMap', 'Pipe', 'PeekS', 'PeekI', 'Peek', 'PCopy', 
-            'pascal', 'Palette', 'Paint', 
+            'Pascal', 'Palette', 'Paint', 
 
             'Overload', 'Output', 'Out', 'Or', 'Option Static', 'Option Private', 
             'Option NoKeyword', 'Option Explicit', 'Option Escape', 'Option Dynamic', 
@@ -128,7 +128,7 @@ $language_data = array (
             'Const', 'Cons', 'CondWait', 'CondSignal', 'CondDestroy', 'CondCreate', 
             'CondBroadcast', 'Common', 'Command', 'Com', 'Color', 'Cls', 'Close', 
             'CLngInt', 'CLng', 'Clear', 'Class', 'Circle', 'CInt', 'Chr', 'ChDir', 
-            'Chain', 'cdecl', 'CDbl', 'CByte', 'Cast', 'Case Else', 'Case', 'CallS', 
+            'Chain', 'CDecl', 'CDbl', 'CByte', 'Cast', 'Case Else', 'Case', 'CallS', 
             'CAllocate', 'Call', 
 
             'ByVal', 'Byte', 'ByRef', 'BSave', 'BLoad', 'Binary', 'Bin', 'Beep', 
