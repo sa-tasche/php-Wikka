@@ -3275,8 +3275,20 @@ class GeSHi {
      */
     function handle_keyword_replace($match) {
         $k = $this->_kw_replace_group;
-        $keyword = $match[0];
         $keyword_match = $match[1];
+
+        // Get "real" keyword from language data - to be inserted in place of the matched keyword.
+        // This allows keywords to be normalized in case-insensitive languages using GESHI_CAPS_REPLACE.
+        $keyword = '';
+        if (!$this->language_data['CASE_SENSITIVE'][$k]) {
+            foreach ($this->language_data['KEYWORDS'][$k] as $keyword) {
+                if (strcasecmp($keyword, $keyword_match) == 0) {
+                    break;
+                }
+            }
+        } else {
+            $keyword = $keyword_match;
+        }
 
         $before = '';
         $after = '';
