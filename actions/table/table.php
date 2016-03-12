@@ -27,17 +27,28 @@ $style='';
 
 if (is_array($vars))
 {
+	# param values are already escaped with Wakka::htmlspecialchars_ent() by Wakka::Action()
 	foreach ($vars as $param => $value)
 	{
-		$value = $this->htmlspecialchars_ent($value);
-		if ($param == 'style') {$style=$value;}
-		if ($param == 'columns') {$columns=$value;}
-		if ($param == 'cellpadding')
-		{
+		if ($param == 'style') {
+			$style = $value;
+		} else if ($param == 'columns') {
+			$columns = $value;
+		} else if ($param == 'cellpadding') {
 			$cellpadding = $value;
 			$border = $value;
+		} else if ($param == 'cells') {
+			// Unescape cell data to avoid treating ;'s from escapes like &amp; as delimiters
+			$rawcells = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
+
+			// Parse cells delimited by ';'
+			$cells = split($delimiter, $rawcells);
+
+			// Re-escape each cell's content
+			foreach ($cells as $key => $cell) {
+				$cells[$key] = htmlentities($cell, ENT_COMPAT, 'UTF-8');
+			}
 		}
-		if ($param == 'cells') $cells = split($delimiter, $value);
 	}
 	$cached_output = '<table class="data" cellpadding="'.$cellpadding.'" cellspacing="'.$cellspacing.'" border="'.$border.'" style="'.$style."\">\n";
 	foreach ($cells as $cell_item)
