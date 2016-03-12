@@ -40,7 +40,8 @@
  * 			necessary) - #312 => NOT CLEAR here what to do; see also #449
  */
 
-if(!defined('MAX_EDIT_NOTE_LENGTH')) define('MAX_EDIT_NOTE_LENGTH', 50);
+if (!defined('MAX_EDIT_NOTE_LENGTH')) define('MAX_EDIT_NOTE_LENGTH', 200);
+if (!defined('EDIT_BOX_SIZE')) define('EDIT_BOX_SIZE', 80);
 if (!defined('EDIT_INVALID_CHARS')) define('EDIT_INVALID_CHARS', '| ? = &lt; &gt; / \ " % &amp;');
 
 //initialization
@@ -166,7 +167,7 @@ else if ($this->HasAccess("write") && $this->HasAccess("read"))
 		// so we use hsc_secure() on the edit note (as on the body)
 		// JW/2007-02-20: why is this? wouldn't it be  easier for the person editing to show actual characters instead of entities?
 		$edit_note_field = '<input id="note"
-		size="'.MAX_EDIT_NOTE_LENGTH.'"
+		size="'.EDIT_BOX_SIZE.'"
 		maxlength="'.MAX_EDIT_NOTE_LENGTH.'" type="text" name="note" value="'.Wakka::hsc_secure($note).'" '.$highlight_note.'/> <label for="note">'.T_("Please add a note on your edit").'</label><br />'."\n";	#427
 	}
 

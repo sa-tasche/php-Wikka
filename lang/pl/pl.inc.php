@@ -182,7 +182,6 @@ if(!defined('ADMINPAGES_DEFAULT_END_DAY')) define('ADMINPAGES_DEFAULT_END_DAY', 
 if(!defined('ADMINPAGES_DEFAULT_END_HOUR')) define('ADMINPAGES_DEFAULT_END_HOUR', 'hh');
 if(!defined('ADMINPAGES_DEFAULT_END_MINUTE')) define('ADMINPAGES_DEFAULT_END_MINUTE', 'mm');
 if(!defined('ADMINPAGES_DEFAULT_END_SECOND')) define('ADMINPAGES_DEFAULT_END_SECOND', 'ss');
-if(!defined('ADMINPAGES_MAX_EDIT_NOTE_LENGTH')) define('ADMINPAGES_MAX_EDIT_NOTE_LENGTH', '50');
 if(!defined('ADMINPAGES_REVISIONS_ICON')) define('ADMINPAGES_REVISIONS_ICON', 'images/icons/edit.png');
 if(!defined('ADMINPAGES_COMMENTS_ICON')) define('ADMINPAGES_COMMENTS_ICON', 'images/icons/comment.png');
 if(!defined('ADMINPAGES_HITS_ICON')) define('ADMINPAGES_HITS_ICON', 'images/icons/star.png');
@@ -1102,8 +1101,6 @@ if(!defined('SHOWCODE_LINK')) define('SHOWCODE_LINK', 'Zobacz źródło tej stro
 if(!defined('SHOWCODE_LINK_TITLE')) define('SHOWCODE_LINK_TITLE', 'Zobacz źródło tej strony'); // @@@ TODO 'View page formatting code' TODO KJT not sure here either.,,
 if(!defined('EDIT_COMMENT_TIMESTAMP_CAPTION')) define('EDIT_COMMENT_TIMESTAMP_CAPTION', '(%s)'); // %s timestamp
 if(!defined('ERROR_INVALID_PAGEID')) define('ERROR_INVALID_PAGEID', 'Dla żądanej strony nie istnieje wskazany numer wersji');
-if(!defined('MAX_TAG_LENGTH')) define('MAX_TAG_LENGTH', 75);
-if(!defined('MAX_EDIT_NOTE_LENGTH')) define('MAX_EDIT_NOTE_LENGTH', 50);
 if(!defined('INPUT_SUBMIT_PREVIEW')) define('INPUT_SUBMIT_PREVIEW', 'Preview');
 if(!defined('INPUT_SUBMIT_RENAME')) define('INPUT_SUBMIT_RENAME', 'Rename');
 /**#@-*/
