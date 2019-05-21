@@ -16,7 +16,7 @@
  */
 
 // Init:
-$delimiter=';';
+$delimiter='/;/';
 $empty_cell='###';
 $row=1;
 $cellpadding=1;
@@ -42,7 +42,8 @@ if (is_array($vars))
 			$rawcells = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
 
 			// Parse cells delimited by ';'
-			$cells = split($delimiter, $rawcells);
+			// $cells = split($delimiter, $rawcells);
+			$cells = preg_split ($delimiter, $rawcells);
 
 			// Re-escape each cell's content
 			foreach ($cells as $key => $cell) {
