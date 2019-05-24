@@ -3,18 +3,36 @@
  * FreeBASIC wikka custom handler
  * 
  * Display a raw list version of a wiki index page in a plain format
- * Pages supported:
+ *
+ * Usage:
+ *    wikka.php?wakka=<pagename>/rawlist
+ *    wikka.php?wakka=<pagename>/rawlist&format=list
+ *    wikka.php?wakka=<pagename>/rawlist&format=index
+ *
+ * <pagname>, follow pages allowed:
  *    - PageIndex
  *    - RecentChanges
  *
- * Header Output format is:
+ * Optional Parameters:
+ *    format=list             plain list (default if not specified)
+ *    format=index            Output index format
+ *
+ * format=list output format, one entry per line:
+ *    pagename . EOL
+ * 
+ * format=index output format:
+ *    Index-Header
+ *    Index-Entry...
+ *  
+ * Index-Header:
  *   # freebasic wiki index
  *   # index: PageIndex
  *   # source: https://www.freebasic.net/wiki/wikka.php?wakka=
  *   # count: nnnn
  *   
- * Data output format is one page name per line:
+ * Index-Entry, one per line:
  *    id . TAB . pagename . EOL
+ *
  */
 
 // Send page as UTF-8 in cases where webserver is set up for different char set.
@@ -22,6 +40,19 @@ header('Content-Type: text/plain; charset=utf-8');
 
 if ($this->HasAccess('read') && $this->page)
 {
+
+	$format = 'list';
+
+	// &format=list or $format=index specified?
+	if (isset($_GET['format']))
+	{
+		$a = $this->GetSafeVar('format', 'get');
+		if ($a == 'list' || $a == 'index' )
+		{
+			$format = $a;
+		}
+	}
+	
 	/*
 	 * Use the page name (tag) to determine what to do here.  Even though
 	 * any page could potentially have the {{PageIndex}} and {{RecentChanges}}
@@ -47,12 +78,15 @@ if ($this->HasAccess('read') && $this->page)
 		$pages = NULL;
 	}
 
-	// output header
-	print( "# freebasic wiki index\r\n" );
-	print( "# index: " . $this->tag . "\r\n" );
-	print( "# source: " . $this->wikka_url . "\r\n" );
-	print( "# count: " . count( $pages) . "\r\n" );
-	
+	if ($format == 'index')
+	{
+		// output header
+		print( "# freebasic wiki index\r\n" );
+		print( "# index: " . $this->tag . "\r\n" );
+		print( "# source: " . $this->wikka_url . "\r\n" );
+		print( "# count: " . count( $pages) . "\r\n" );
+	}
+
 	// any results?
 	if( $pages )
 	{
@@ -64,7 +98,14 @@ if ($this->HasAccess('read') && $this->page)
 			{
 				continue;
 			}
-			print( $page['id'] . "\t" . $page['tag']. "\r\n" );
+			if ($format == 'index')
+			{
+				print( $page['id'] . "\t" . $page['tag']. "\r\n" );
+			}
+			else
+			{
+				print( $page['tag']. "\r\n" );
+			}
 		}
 	}
 }
