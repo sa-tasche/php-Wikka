@@ -56,6 +56,12 @@ Deny from 50.77.126.177
 	 RewriteCond %{REQUEST_FILENAME} wikka.php
 	  RewriteRule ^(.*)$ wikka.php?wakka= [QSA,L]
 
+	# requesting css page? don't rewrite [jeffm, 2021-10-08]
+	# otherwise we end up in a recursive loop
+	# added the static css from /templates at pages at /css/*.css
+    RewriteCond %{REQUEST_FILENAME} css/(.*)\.css$
+    RewriteRule ^(.*)$ $1 [END]
+
 	# Redirect browsers from /wiki/wikka.php?wakka=... to /wiki/..., to give nicer browser URLs
 	# (Note: I don't want to redirect pages like wakka=KeyPgPrint/raw, which makes it more complicated.)
 	# - Matthew Fearnley, 31 July 2020
