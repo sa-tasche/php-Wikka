@@ -7,12 +7,12 @@ deny from env=BadReferrer
 BrowserMatchNoCase discobot block_bot
 BrowserMatchNoCase Baiduspider block_bot
 BrowserMatchNoCase AhrefsBot block_bot
-BrowserMatchNoCase bingbot block_bot
+#BrowserMatchNoCase bingbot block_bot
 BrowserMatchNoCase msnbot block_bot
 BrowserMatchNoCase Ezooms block_bot
 BrowserMatchNoCase YandexBot block_bot
 BrowserMatchNoCase Exabot block_bot
-BrowserMatchNoCase Googlebot block_bot
+#BrowserMatchNoCase Googlebot block_bot
 BrowserMatchNoCase Sosospider block_bot
 BrowserMatchNoCase YodaoBot block_bot
 BrowserMatchNoCase Sogou block_bot
@@ -21,7 +21,7 @@ BrowserMatchNoCase Crawler block_bot
 BrowserMatchNoCase spbot block_bot
 BrowserMatchNoCase SemrushBot block_bot
 BrowserMatchNoCase MLBot block_bot
-BrowserMatchNoCase ia_archiver block_bot
+#BrowserMatchNoCase ia_archiver block_bot
 BrowserMatchNoCase Updownerbot block_bot
 BrowserMatchNoCase magpie block_bot
 BrowserMatchNoCase Thales block_bot
@@ -36,17 +36,41 @@ Deny from 50.77.126.177
 	# turn on rewrite engine
 	RewriteEngine on
 
+	# make sure HTTPS is used
+	RewriteCond %{HTTPS} off
+	 RewriteCond %{HTTP_HOST} ^freebasic\.net$
+	  RewriteRule ^(.*)$ https://www.freebasic.net/wiki/$1 [R=301,L]
+
+	RewriteCond %{HTTPS} off
+	 RewriteCond %{HTTP_HOST} ^www\.freebasic\.net$
+	  RewriteRule ^(.*)$ https://www.freebasic.net/wiki/$1 [R=301,L]
+
+
 	# if request is a directory, make sure it ends with a slash
 	RewriteCond %{REQUEST_FILENAME} -d
-	RewriteRule ^(.*/[^/]+)$ $1/
+	 RewriteRule ^(.*/[^/]+)$ $1/
 
 	# if not rewritten before, AND requested file is wikka.php
 	# turn request into a query for a default (unspecified) page
 	RewriteCond %{QUERY_STRING} !wakka=
-	RewriteCond %{REQUEST_FILENAME} wikka.php
-	RewriteRule ^(.*)$ wikka.php?wakka= [QSA,L]
+	 RewriteCond %{REQUEST_FILENAME} wikka.php
+	  RewriteRule ^(.*)$ wikka.php?wakka= [QSA,L]
+
+	# Redirect browsers from /wiki/wikka.php?wakka=... to /wiki/..., to give nicer browser URLs
+	# (Note: I don't want to redirect pages like wakka=KeyPgPrint/raw, which makes it more complicated.)
+	# - Matthew Fearnley, 31 July 2020
+	
+    # Ignore POST requests (e.g. login to wakka=UserSettings)
+    RewriteCond %{REQUEST_METHOD} !POST
+     # Ignore complex URLs (I don't seem to be able to have negative character groups here (e.g. [^a-z]), so check only for / and &)
+	 RewriteCond %{THE_REQUEST} !^.*/wiki/wikka[.]php[?]wakka=[A-Za-z0-9_]+[/&].*
+	  # Otherwise if /wiki/wakka.php?wakka/%1* (I don't seem to be able to put a '$' at the end here to stop it matching against trailing chars, hence the previous cond)
+	  RewriteCond %{THE_REQUEST} ^.*/wiki/wikka[.]php[?]wakka=([A-Za-z0-9_]*)
+	   RewriteRule ^/?wikka\.php$ /wiki/%1? [R=302,L]
+	
 
 	# if not rewritten before, AND requested file is a page name
 	# turn request into a query for that page name for wikka.php
 	RewriteRule ^(.*)$ wikka.php?wakka=$1 [QSA,L]
+
 </IfModule>
