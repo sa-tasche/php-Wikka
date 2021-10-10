@@ -23,8 +23,8 @@ echo $this->Link('http://wikkawiki.org/', '', sprintf(T_("Powered by %s"), 'Wikk
 <p><br/></p>
 <p><br/></p>
 <div align="center">
-<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=122342&amp;type=1" width="88" height="31" border="0" alt="sf.net" /></a>
-<a href="http://www.phatcode.net/"><img src="images/phatcode-logo.gif" border="0" alt="phatcode" /></a>
+<a href="https://sourceforge.net"><img src="https://sourceforge.net/sflogo.php?group_id=122342&amp;type=1" width="88" height="31" border="0" alt="sf.net" /></a>
+<a href="https://www.phatcode.net/"><img src="images/phatcode-logo.gif" border="0" alt="phatcode" /></a>
 </div>
 
 <?php
