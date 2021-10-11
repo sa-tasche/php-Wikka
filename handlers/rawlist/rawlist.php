@@ -63,7 +63,7 @@ if ($this->HasAccess('read') && $this->page)
 
 	$qry = "SELECT DISTINCT id, tag
 			FROM " . $this->GetConfigValue('table_prefix') . "pages
-			WHERE latest = 'Y'";
+			WHERE ((latest = 'Y') AND (CHAR_LENGTH(body) > 2))";
 	
 	if ($this->GetPageTag() == 'PageIndex')
 	{
@@ -78,26 +78,44 @@ if ($this->HasAccess('read') && $this->page)
 		$pages = NULL;
 	}
 
+	// any results? count the number of pages first before we write the header
+	$pagecount = 0;
+	$cacheAccess= array();
+
+	if( $pages )
+	{
+		foreach ($pages as $page)
+		{
+			if (!$this->HasAccess('read', $page['tag']))
+			{
+				$cacheAccess[$page['tag']] = false;
+				continue;
+			}
+			$cacheAccess[$page['tag']] = true;
+			$pagecount = $pagecount + 1;
+		}
+	}
+	
 	if ($format == 'index')
 	{
 		// output header
 		print( "# freebasic wiki index\r\n" );
 		print( "# index: " . $this->tag . "\r\n" );
 		print( "# source: " . $this->wikka_url . "\r\n" );
-		print( "# count: " . count( $pages) . "\r\n" );
+		print( "# count: " . $pagecount . "\r\n" );
 	}
 
 	// any results?
-	if( $pages )
+	if( $pagecount > 0 )
 	{
 		// output index
 		foreach ($pages as $page)
 		{
-			// check user read privileges
-			if (!$this->HasAccess('read', $page['tag']))
+			if (!$cacheAccess[$page['tag']]) 
 			{
-				continue;
+			 	continue;
 			}
+
 			if ($format == 'index')
 			{
 				print( $page['id'] . "\t" . $page['tag']. "\r\n" );
