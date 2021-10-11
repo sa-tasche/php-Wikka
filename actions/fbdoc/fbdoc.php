@@ -73,6 +73,7 @@
 			'ret'=> 'Return Value', 
 			'desc' => 'Description', 
 			'ex' => 'Examples', 
+			'ver' => 'Version',
 			'lang' => 'Dialect Differences',
 			'target' => 'Platform Differences',
 			'diff' => 'Differences from QB',
