@@ -4,7 +4,7 @@ $str = <<<EOD
 >>==See also:==
 ~-For earlier Wikka versions, check the [[Docs:TableActionInfo | table]] action
 ~-Updated versions of this page can be found on the [[Docs:TableMarkup | Wikka documentation server]] 
-~-For a more formal description, check this server's TableMarkupReference page.
+~-For a more formal description, check the document server [[Docs:TableMarkupReference TableMarkupReference]] page.
 >>
 As of ##1.2##, Wikka introduces a flexible markup for data tables. Any kind of tables allowed by XHTML can be created using this markup, from the most basic examples (e.g. simple rows of cells) to complex tables with full support for accessibility options.::c::
 
@@ -117,6 +117,31 @@ Spans can also be applied to rows. A **cell spanning multiple rows** is generate
 ||(y:2)Cell spanning 2 rows||Cell 2||Cell 3||
 ||Cell 5||Cell 6||
 ||Cell 7||Cell 8||Cell 9||
+
+Note that you must account for cells that are "pushed down" when using row spans:
+
+##""|=|     |=|Mon|=|Tue|=|Wed|=|Thu|=|Fri|=|""##
+##""|=|8-9  || ||(y:9) Outreach|| ||(y:9) Outreach|| ||""##
+##""|=|9-10 || || || ||""## <-- reduced by two columns
+##""|=|10-11|| || || ||""##
+##""|=|11-12|| || || ||""##
+##""|=|12-1 || || || ||""##
+##""|=|1-2  || || || ||""##
+##""|=|2-3  ||(y:3) CSCI 102 ||CSCI 101||CSCI 101||""##
+##""|=|3-4  || || ||""## <-- reduced by one column
+##""|=|4-5  || || ||""##
+
+|=|     |=|Mon|=|Tue|=|Wed|=|Thu|=|Fri|=|
+|=|8-9  || ||(y:9) Outreach|| ||(y:9) Outreach|| ||
+|=|9-10 || || || ||
+|=|10-11|| || || ||
+|=|11-12|| || || ||
+|=|12-1 || || || ||
+|=|1-2  || || || ||
+|=|2-3  ||(y:3) CSCI 102 ||CSCI 101||CSCI 101||
+|=|3-4  || || ||
+|=|4-5  || || ||
+
 
 Spans are particularly useful to create **subheadings**:
 
