@@ -8,7 +8,7 @@
  */
 $wakkaConfig = array(
 	'mysql_host' => 'localhost',
-	'mysql_database' => 'fb_fbc',
+	'mysql_database' => 'fb_wiki',
 	'mysql_user' => 'xxx',
 	'table_prefix' => 'wikka_',
 	'root_page' => 'FBWiki',
