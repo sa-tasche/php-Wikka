@@ -2121,16 +2121,24 @@ class Wakka
 		}
 		if ($this->HasPageTitle() && $tag == $this->GetPageTag())
 		{
-			return $this->page_title;
+			$page_title = $this->page_title;
 		}
-		$query = "SELECT title FROM ".
-				$this->GetConfigValue('table_prefix').
-				"pages WHERE tag = '".
-				mysql_real_escape_string($tag).
-				"' AND LATEST = 'Y'";
-		$res = $this->LoadSingle($query);
-		$page_title = trim($res['title']) !== '' ? $res['title'] : $tag;
-		return trim(strip_tags($page_title));
+		else {
+			$query = "SELECT title FROM ".
+					$this->GetConfigValue('table_prefix').
+					"pages WHERE tag = '".
+					mysql_real_escape_string($tag).
+					"' AND LATEST = 'Y'";
+			$res = $this->LoadSingle($query);
+			$page_title = trim($res['title']) !== '' ? $res['title'] : $tag;
+			$page_title = strip_tags($page_title);
+		}
+		$handler = $this->GetHandler();
+		if($handler != 'show' &&
+		   $handler != NULL) {
+			$page_title = $handler." \"".trim($page_title)."\"";
+		}
+		return $page_title;
 	}
 
 	/**
@@ -5133,13 +5141,13 @@ class Wakka
 		if (preg_match('/\.(xml|mm)$/', $this->GetHandler()))
 		{
 			header('Content-type: text/xml');
-			print($this->handler($this->GetHandler()));
+			print($this->Handler($this->GetHandler()));
 		}
 		// raw page handler
 		elseif ($this->GetHandler() == "raw")
 		{
 			header('Content-type: text/plain');
-			print($this->handler($this->GetHandler()));
+			print($this->Handler($this->GetHandler()));
 		}
 		// list page handler
 		elseif ($this->GetHandler() == 'rawlist')
@@ -5150,7 +5158,7 @@ class Wakka
 		// grabcode page handler
 		elseif ($this->GetHandler() == 'grabcode')
 		{
-			print($this->handler($this->GetHandler()));
+			print($this->Handler($this->GetHandler()));
 		}
 		elseif (preg_match('/\.(gif|jpg|png)$/', $this->GetHandler()))		# should not be necessary
 		{
@@ -5167,7 +5175,7 @@ class Wakka
 		elseif($this->GetHandler() == 'html')
 		{
 			header('Content-type: text/html');
-			print($this->handler($this->GetHandler()));
+			print($this->Handler($this->GetHandler()));
 		}
 		else
 		{
