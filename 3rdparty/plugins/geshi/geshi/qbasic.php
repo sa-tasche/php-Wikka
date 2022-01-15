@@ -4,7 +4,7 @@
  * ----------
  * Author: Nigel McNie (nigel@geshi.org)
  * Copyright: (c) 2004 Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.8.12
+ * Release Version: 1.0.9.0
  * Date Started: 2004/06/20
  *
  * QBasic/QuickBASIC language file for GeSHi.
@@ -51,7 +51,7 @@
  ************************************************************************************/
 $language_data = array (
     'LANG_NAME' => 'QBasic/QuickBASIC',
-    'COMMENT_SINGLE' => array(1 => "'", 2 => ' REM', 3 => "\tREM"),
+    'COMMENT_SINGLE' => array(1 => "'"),
     'COMMENT_MULTI' => array(),
     'COMMENT_REGEXP' => array(
         //Single-Line Comments using REM command
@@ -114,7 +114,7 @@ $language_data = array (
         'COMMENTS' => array(
             1 => 'color: #808080;',
             2 => 'color: #808080;',
-            3 => 'color: #808080;'
+            3 => 'color: #8080C0;'
             ),
         'BRACKETS' => array(
             0 => 'color: #66cc66;'
