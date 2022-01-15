@@ -24,6 +24,9 @@
  * @copyright Copyright 2006-2010 {@link http://wikkawiki.org/CreditsPage Wikka Development Team}
  */
 
+include_once("libs/Database.lib.php");
+
+
 /**
  * Time to live for client-side cookies in seconds (90 days)
  */
@@ -247,17 +250,10 @@ class Wakka
 		$this->config = $config;
 
 		// Set up PDO object
-		$dsn = $this->GetConfigValue('dbms_type') . ':' .
-			   'host=' . $this->GetConfigValue('dbms_host') . ';' .
-			   'dbname=' . $this->GetConfigValue('dbms_database');
-		$user = $this->GetConfigValue('dbms_user');
-		$pass = $this->GetConfigValue('dbms_password');
-		try {
-			$this->dblink = new PDO($dsn, $user, $pass);
-		} catch(PDOException $e) {
-			die('<em class="error">'.T_("PDO connection error!").'</em>');
+		$this->dblink = db_getPDO($this);
+		if($this->dblink == null) {
+			die('<em class="error">'.T_("DB connection error in Wakka()").'</em>');
 		}
-		$this->dblink->query("SET NAMES 'utf8'");
 
 		// Don't emulate prepare statements (to prevent injection attacks)
 		$this->dblink->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -316,23 +312,24 @@ class Wakka
 			}
 		} catch(PDOException $e) {
 			ob_end_clean();
-			/*
-			die('<em class="error">' . 
-			    T_("Query failed in Query(): ") .  
+/*
+			die('<em class="error">' .
+			    T_("Query failed in Query(): ") .
 				$e->getCode() .
 				'</em>');
-			*/
-
+      */
 			// DEBUG
 			// Don't use this in production!
+
 			print $e;
 			print "<br/>";
 			print "Query: ".$query;
-			print "Params: ".var_dump($params);	
-			die('<em class="error">' . 
-			    T_("Query failed in Query(): ") .  
+			print "Params: ".var_dump($params);
+			die('<em class="error">' .
+			    T_("Query failed in Query(): ") .
 				$e->getCode() .
 				'</em>');
+
 		}
 		if ($object && $this->GetConfigValue('sql_debugging'))
 		{
@@ -369,12 +366,12 @@ class Wakka
 
 	/**
 	 * Return "safe" identifiers (tables, fields, and database names)
-	 * by enclosing in backticks. 
+	 * by enclosing in backticks.
 	 *
 	 * Note that this offers protection against SQL injection, but not
 	 * against dynamic input of table/field/db names.  Best to check
 	 * against a whitelist!
-	 * 
+	 *
 	 * Adapted from http://php.net/manual/en/pdo.quote.php#112169
 	 *
 	 * @param	string		$ident	mandatory: identifier
@@ -402,7 +399,7 @@ class Wakka
 		}
 		return $dblink->getAttribute(PDO::ATTR_SERVER_VERSION);
 	}
-		
+
 
 	/**
 	 * Return the first row of a query executed on the database.
@@ -461,7 +458,7 @@ class Wakka
 	 * @param	string	$where	optional: criteria to be specified for a WHERE clause;
 	 *							do not include WHERE
 	 * @param   boolean $usePrefix optional: if true, append prefix defined in wikka.config.php file; if false, do not append prefix
-	 * @return	integer	number of matches returned by query 
+	 * @return	integer	number of matches returned by query
 	 */
 	function getCount($table, $where='', $params = NULL, $usePrefix=TRUE)
 	{
@@ -634,7 +631,7 @@ class Wakka
 	 * overall).
 	 *
 	 * @author		{@link http://wikkawiki.org/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @since		Wikka 1.1.6.4
 	 * @version		1.0
@@ -744,7 +741,7 @@ class Wakka
 	 * See #427.
 	 *
 	 * @author		{@link http://wikkawiki.org/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2004, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2004, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		1.0
 	 *
@@ -1098,7 +1095,7 @@ class Wakka
 	 * Normalizes line endings to "*nix style" ("\n") in a string; handles both Dos/Win and Mac.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 *
@@ -1223,7 +1220,7 @@ class Wakka
 	 * Log probably spammy comment.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.7
 	 *
@@ -1250,7 +1247,7 @@ class Wakka
 	 * Log probably spammy document.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.7
 	 *
@@ -1277,7 +1274,7 @@ class Wakka
 	 * Log probably spammy feedback.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.7
 	 *
@@ -1302,7 +1299,7 @@ class Wakka
 	 * Log probable spam (comment, document or feedback).
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.7
 	 *
@@ -1354,7 +1351,7 @@ class Wakka
 		$sig		= SPAMLOG_SIG.' '.$type.' '.$time.' '.$tag.' - '.$originip.' - '.$user.' '.$ua.' - '.$reason.' - '.$urlcount."\n";
 		$content	= $sig.$body."\n\n";
 
-		// add data to log	
+		// add data to log
 		return $this->appendFile($spamlogpath,$content);	# nr. of bytes written if successful, FALSE otherwise
 	}
 
@@ -1362,7 +1359,7 @@ class Wakka
 	 * Get all meta data lines from the spamlog and return the data in an array.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.3
 	 *
@@ -1419,7 +1416,7 @@ class Wakka
 	 * to an existing file.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 * @todo
@@ -1465,7 +1462,7 @@ class Wakka
 	 * Returns the number of bytes written if successful, FALSE otherwise.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 * @todo
@@ -1507,7 +1504,7 @@ class Wakka
 	 * Returns the number of bytes written if successful, FALSE otherwise.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 * @todo
@@ -2010,23 +2007,13 @@ class Wakka
 				);
 
 			// add new revision
-			$this->Query("
-				INSERT INTO ".$this->GetConfigValue('table_prefix')."pages
-				SET	tag		= :tag,
-				  title = :page_title,
-					time	= now(),
-					owner	= :owner,
-					user	= :user,
-					note	= :note,
-					latest	= 'Y',
-					body	= :body",
-					array(':tag' => $tag,
-					      ':page_title' => $page_title,
-						  ':owner' => $owner,
-						  ':user' => $user,
-						  ':note' => $note,
-						  ':body' => $body)
-				);
+			$params = array(':tag' => $tag,
+			                ':page_title' => $page_title,
+							':owner' => $owner,
+							':user' => $user,
+							':note' => $note,
+							':body' => $body);
+			db_addNewRevision($this, $params);
 
 			// WikiPing
 			if ($pingdata = $this->GetPingParams($this->GetConfigValue('wikiping_server'), $tag, $user, $note))
@@ -2043,14 +2030,14 @@ class Wakka
 	 */
 
 	/**
-	 * Full text search, case-sensitive 
+	 * Full text search, case-sensitive
 	 *
 	 * @access	public
 	 *
-	 * @param	string	$phrase	the text to be searched for 
+	 * @param	string	$phrase	the text to be searched for
      * @param   string  $caseSensitive	optional: 0 for case-insensitive search (default), 1 for case-sensitive search
-	 * @param   string $utf8Compatible optional: 0 for legacy search (case sensitive, wildcards, but incompatible with some character codings), 1 for UTF-8 compatible searches (non-case-sensitive, no wildcards) 
-	 * @return	string  Search results	
+	 * @param   string $utf8Compatible optional: 0 for legacy search (case sensitive, wildcards, but incompatible with some character codings), 1 for UTF-8 compatible searches (non-case-sensitive, no wildcards)
+	 * @return	string  Search results
 	 */
 	function FullTextSearch($phrase, $caseSensitive=0, $utf8Compatible=0)
 	{
@@ -2071,7 +2058,7 @@ class Wakka
 		else
 		{
 			$sql  = "select * from ".$this->GetConfigValue('table_prefix')."pages WHERE latest = ". "'Y'";
-			foreach( explode(' ', $phrase) as $term ) 
+			foreach( explode(' ', $phrase) as $term )
 				$sql .= " AND ((`tag` LIKE '%'.$this->quote($term).'%') OR (body LIKE '%'.$this->quote($term).'%'))";
 			$data = $this->LoadAll($sql, NULL);
 		}
@@ -2266,7 +2253,7 @@ class Wakka
 	 * Check by name if a page exists.
 	 *
 	 * @author		{@link http://wikkawiki.org/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2004, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2004, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		1.1
 	 *
@@ -2313,7 +2300,7 @@ class Wakka
 			$r->closeCursor();
 		}
 		// report
-		return ($count > 0) ? TRUE : FALSE;
+		return ($count[0] > 0) ? TRUE : FALSE;
 	}
 
 	/**#@-*/
@@ -2505,7 +2492,7 @@ class Wakka
 				return FALSE;
 			}
 				$ping['history'] = $this->Href('revisions', $tag); // set url to history
-	
+
 				if ($user)
 				{
 					$ping['author'] = $user; // set username
@@ -2776,7 +2763,7 @@ class Wakka
 
 		// is this an interwiki link?
 		// before the : should be a WikiName; anything after can be (nearly) anything that's allowed in a URL
-		if (preg_match('/^([A-ZÄÖÜ][A-Za-zÄÖÜßäöü]+)[:](\S*)$/', $tag, $matches))	// @@@ FIXME #34 (inconsistent with Formatter)
+		if (preg_match('/^([A-Zï¿½ï¿½ï¿½][A-Za-zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]+)[:](\S*)$/', $tag, $matches))	// @@@ FIXME #34 (inconsistent with Formatter)
 		{
 			$url = $this->GetInterWikiUrl($matches[1], $matches[2]);
 			$class = 'interwiki';
@@ -2859,7 +2846,7 @@ class Wakka
 	 *            show_edit_link: If true, each page is followed by an edit link. Default: false.
 	 *            show_page_title: If true, show the title of the page after the page name. Default: true.
 	 *            sort: Should the data be sorted before being listed? Default: no (no sorting)
-	 *  Other possible values for sort: 
+	 *  Other possible values for sort:
 	 *   ignore_case ou ksort: sort page names, ignoring case
 	 *   reverse ou rsort: sort in reverse order, not ignoring case
 	 *   ignore_case_reverse ou krsort: sort in reverse order, not ignoring case
@@ -3550,6 +3537,10 @@ class Wakka
 						time		= now()",
 					array(':tag' => $tag, ':referrer' => $referrer)
 					);
+				$this->Query("
+					INSERT INTO ".$this->GetConfigValue('table_prefix')."referrers (page_tag, referrer, time) VALUES (:tag, :referrer, now())",
+					array(':tag' => $tag, ':referrer' => $referrer)
+					);
 			}
 		}
 	}
@@ -3649,18 +3640,18 @@ class Wakka
 					// Check to see if linktracking is desired (for
 					// instance, when using {{image}} tags to link to
 					// other wiki pages
-					if(FALSE !== strpos($matches[1][$a], "forceLinkTracking")) 
+					if(FALSE !== strpos($matches[1][$a], "forceLinkTracking"))
 					{
 						if(TRUE == $this->htmlspecialchars_ent($matches[3][$a]))
 						{
-							$forceLinkTracking = 1;	
+							$forceLinkTracking = 1;
 						}
 						else
 						{
 							$forceLinkTracking = 0;
 						}
 					}
-					else 
+					else
 					{
 						$vars[$matches[1][$a]] = $this->htmlspecialchars_ent($matches[3][$a]);	// parameter name = sanitized value [SEC]
 					}
@@ -4064,11 +4055,8 @@ class Wakka
 		// older than PERSISTENT_COOKIE_EXPIRY, as this is not a
 		// time-critical function for the user.  The assumption here
 		// is that server-side sessions have long ago been cleaned up by PHP.
-		$this->Query("
-			DELETE FROM ".$this->GetConfigValue('table_prefix')."sessions
-			WHERE DATE_SUB(NOW(), INTERVAL ".PERSISTENT_COOKIE_EXPIRY." SECOND) > session_start"
-			);
-		$this->registered = false;
+		db_purgeSessions($this);
+		$obj->registered = false;
 	}
 
 	/**
@@ -4292,7 +4280,7 @@ class Wakka
 	 * Select and load a single comment.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 *
 	 * @access	public
@@ -4498,7 +4486,7 @@ class Wakka
 			WHERE c2.page_tag IS NULL
 				AND (comments.status IS NULL or comments.status != 'deleted')
 					".$where."
-			ORDER BY time DESC
+			ORDER BY comments.time DESC
 			LIMIT ".intval($limit);
 		return $this->LoadAll($sql, $params);
 	}
@@ -4524,25 +4512,19 @@ class Wakka
 		{
 			$parent_id = 'NULL';
 		}
-		$this->Query("
-			INSERT INTO ".$this->GetConfigValue('table_prefix')."comments
-			SET page_tag = :page_tag,
-				time = now(),
-				comment = :comment,
-				parent = :parent_id,
-				user = :user",
-			array(':page_tag' => $page_tag,
-			      ':comment' => $comment,
-				  ':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
-				  ':user' => $user)
-			);
+		
+		$params = array(':page_tag' => $page_tag,
+		                ':comment' => $comment,
+						':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
+						':user' => $user);
+		db_saveComment($this, $params);
 	}
 
 	/**
 	 * Delete a comment.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 *
 	 * @access	public
@@ -4579,7 +4561,7 @@ class Wakka
 	 */
 	function UserIsOwner($tag = '')
 	{
-	
+
 		// if not logged in, user can't be owner!
 		if (!$this->GetUser())
 		{
@@ -4782,16 +4764,23 @@ class Wakka
 			$this->Query("
 				UPDATE ".$this->GetConfigValue('table_prefix')."acls
 				SET $privs = :list
-				WHERE page_tag = :tag
-				LIMIT 1", 
+				WHERE page_tag = :tag",
 				array(':list' => $list, ':tag' => $tag)
 				);
 		}
 		else
 		{
+			$default_arr = preg_split('/,/', $default);
+			array_pop($default_arr);
+			foreach($default_arr as $default_value) {
+				$fields = preg_split('/=/', $default_value);
+				$default_privs .= $fields[0].', ';
+				$default_values .= $fields[1].', ';
+			}
 			$this->Query("
 				INSERT INTO ".$this->GetConfigValue('table_prefix')."acls
-				SET".$default." `page_tag` = :tag, ".$privs." = :list",
+				(".$default_privs." `page_tag`, ".$privs.") VALUES
+				($default_values :tag, :list)",
 				array(':tag' => $tag, ':list' => $list)
 				);
 		}
@@ -4817,7 +4806,7 @@ class Wakka
 	}
 
 	/**
-	 * Check to see if a user is a member of an ACL usergroup (i.e., 
+	 * Check to see if a user is a member of an ACL usergroup (i.e.,
 	 * the username appears within a set of "+" symbols).
 	 *
 	 * @param string $who	mandatory: Username
@@ -4858,11 +4847,11 @@ class Wakka
 		// set defaults
 		if (!$tag) $tag = $this->GetPageTag();
 		if (!$username) $username = $this->GetUserName();
-                                       
+
         // Get a user object for the named user
         $user = ($username == $this->GetUserName()) ? $this->GetUser() : $this->LoadUser($username);
-                                       
-		// If user is owner or admin, return true. 
+
+		// If user is owner or admin, return true.
 		// Owner and admin can do anything!
         if ($user != FALSE) {
            if ($this->IsAdmin($username) || $this->GetPageOwner($tag) == $username) return TRUE;
@@ -4917,7 +4906,7 @@ class Wakka
 					{
 						return !$negate;
 					}
-                    // this may be a UserGroup so we check if $user 
+                    // this may be a UserGroup so we check if $user
 					// is part of the group
                     else if (($this->isGroupMember($username, $line)))
                     {
@@ -4938,7 +4927,7 @@ class Wakka
 	 * Reads the content of the badwords file. Return contents as string if found, FALSE if not.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 *
@@ -4980,7 +4969,7 @@ class Wakka
 	 * Returns TRUE if successful, FALSE otherwise.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.6
 	 *
@@ -5025,7 +5014,7 @@ class Wakka
 	 * Return contents as a string if there is any; FALSE if file not found or empty.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 *
@@ -5054,7 +5043,7 @@ class Wakka
 	 * Returns TRUE if teh content contains any of the bad words, FALSE otherwise.
 	 *
 	 * @author		{@link http://wikka.jsnx.com/JavaWoman JavaWoman}
-	 * @copyright	Copyright © 2005, Marjolein Katsma
+	 * @copyright	Copyright ï¿½ 2005, Marjolein Katsma
 	 * @license		http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
 	 * @version		0.5
 	 *
@@ -5145,7 +5134,7 @@ class Wakka
 	 *
 	 */
 	function Maintenance()
-	{
+	{ /*
 		// purge referrers
 		if ($days = $this->GetConfigValue("referrers_purge_time"))
 		{
@@ -5153,7 +5142,7 @@ class Wakka
 				DELETE FROM ".$this->GetConfigValue('table_prefix')."referrers
 				WHERE time < date_sub(now(), interval :days day)",
 				array(':days' => $days)
-				);
+			);
 		}
 
 		// purge old page revisions
@@ -5165,7 +5154,7 @@ class Wakka
 					AND latest = 'N'", array(':days' => $days)
 				);
 			$this->Query("delete from ".$this->GetConfigValue('table_prefix')."pages where time < date_sub(now(), interval :days day) and latest = 'N'", array(':days' => days));
-		}
+		} */
 	}
 
 	/**
@@ -5182,7 +5171,7 @@ class Wakka
 			if(isset($_SESSION['breadcrumbs'])) {
 				$q = new SplQueue();
 				$q->unserialize($_SESSION['breadcrumbs']);
-				if($page != $q->top()) { 
+				if($page != $q->top()) {
 					while($q->count() >= $this->GetConfigValue('num_breadcrumb_nodes')) {
 						$q->dequeue();
 					}
@@ -5324,6 +5313,17 @@ class Wakka
 		{
 			header('Content-type: text/html');
 			print($this->Handler($this->GetHandler()));
+		}
+		elseif($this->GetHandler() == 'reveal')
+		{
+			print($this->Handler($this->GetHandler()));
+		}
+		elseif( $this->GetHandler() == 'show' && pathinfo($this->GetPageTag(), PATHINFO_EXTENSION) == 'md' && $this->page['body'] != '' )
+		{
+			$this->Handler($this->handler = 'md');
+			echo $this->Header();
+			echo $this->Handler($this->GetHandler());
+		  echo $this->Footer();
 		}
 		else
 		{

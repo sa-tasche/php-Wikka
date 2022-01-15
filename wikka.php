@@ -365,6 +365,7 @@ $wakkaDefaultConfig = array(
 	'dbms_database'				=> 'wikka',
 	'dbms_user'					=> 'wikka',
 	'dbms_type'					=> 'mysql',
+	'supported_dbms'			=> 'mysql, sqlite',
 	'table_prefix'				=> 'wikka_',
 
 	'root_page'					=> 'HomePage',
@@ -430,15 +431,10 @@ $wakkaDefaultConfig = array(
 	'max_new_comment_urls'		=> '6',
 	'max_new_feedback_urls'		=> '6',
 	'utf8_compat_search'		=> '0',
-	'enable_breadcrumbs'		=> '0',
+	'enable_breadcrumbs'		=> '1',
 	'breadcrumb_node_delimiter' => '>',
 	'num_breadcrumb_nodes'		=> '5'
 	);
-
-// Enable breadcrumbs for PHP versions >= 5.4
-if(PHP_VERSION_ID >= 50400) {
-	$wakkaDefaultConfig['enable_breadcrumbs'] = 1;
-}
 
 // load config
 $wakkaConfig = array();
@@ -465,7 +461,23 @@ if (isset($wakkaConfig['footer_action'])) //since 1.1.6.4
 {
 	unset($wakkaConfig['footer_action']);
 }
-	
+if(isset($wakkaConfig['mysql_host'])) {   //since 1.4.0
+	$wakkaConfig['dbms_host'] = $wakkaConfig['mysql_host'];
+	unset($wakkaConfig['mysql_host']);
+}
+if(isset($wakkaConfig['mysql_database'])) {   //since 1.4.0
+	$wakkaConfig['dbms_database'] = $wakkaConfig['mysql_database'];
+	unset($wakkaConfig['mysql_database']);
+}
+if(isset($wakkaConfig['mysql_user'])) {   //since 1.4.0
+	$wakkaConfig['dbms_user'] = $wakkaConfig['mysql_user'];
+	unset($wakkaConfig['mysql_user']);
+}
+if(isset($wakkaConfig['mysql_password'])) {   //since 1.4.0
+	$wakkaConfig['dbms_password'] = $wakkaConfig['mysql_password'];
+	unset($wakkaConfig['mysql_password']);
+}
+
 // Remove old stylesheet, #6
 if(isset($wakkaConfig['stylesheet']))
 {
@@ -485,6 +497,9 @@ if(isset($wakkaConfig['lang_path']) && preg_match('/plugins\/lang/', $wakkaConfi
 	$wakkaConfig['lang_path'] = "plugins/lang," .  $wakkaConfig['lang_path'];
 if(isset($wakkaConfig['menu_config_path']) && preg_match('/plugins\/config/', $wakkaConfig['menu_config_path']) <= 0)
 	$wakkaConfig['menu_config_path'] = "plugins/config," .  $wakkaConfig['menu_config_path'];
+
+// Pick up DB-specific config options 
+db_configOptions($wakkaDefaultConfig, $wakkaConfig);
 
 $wakkaConfig = array_merge($wakkaDefaultConfig, $wakkaConfig);	// merge defaults with config from file
 
@@ -751,18 +766,8 @@ if(NULL != $user)
 	$username = $user['name'];
 	$res = $wakka->LoadSingle("SELECT * FROM ".$wakka->config['table_prefix']."sessions WHERE sessionid=:sessionid AND userid=:userid",
 		array(':sessionid' => $sessionid, ':userid' => $username));
-	if(isset($res))
-	{
-		// Just update the session_start time
-		$wakka->Query("UPDATE ".$wakka->config['table_prefix']."sessions SET session_start=FROM_UNIXTIME(".$wakka->GetMicroTime().") WHERE sessionid=:sessionid AND userid=:userid",
-			array(':sessionid' => $sessionid, ':userid' => $username));
-	}
-	else
-	{
-		// Create new session record
-		$wakka->Query("INSERT INTO ".$wakka->config['table_prefix']."sessions (sessionid, userid, session_start) VALUES(:sessionid, :userid, FROM_UNIXTIME(".$wakka->GetMicroTime()."))",
-			array(':sessionid' => $sessionid, ':username' => $username));
-	}
+	$update = isset($res) ? true : false;
+	db_storeSession($wakka, $update);	
 }
 
 /**
