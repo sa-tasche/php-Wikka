@@ -70,7 +70,7 @@ function outputChangePasswordHTML() {
     <input type="hidden" name="action" value="changepass" />';
     if (isset($passerror))
     {
-        $output .= '<em class="error">'.$passerror.'</em><br />'."\n";
+        $output .= '<!-- <wiki-error>invalid username or pwd</wiki-error> --><em class="error">'.$passerror.'</em><br />'."\n";
     }
     else if (isset($passsuccess))
     {
