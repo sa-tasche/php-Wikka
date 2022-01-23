@@ -298,64 +298,7 @@ else
 	$t_rewrite_mode = 0;
 }
 
-// ---------------------- DEFINE URL DOMAIN / PATH -----------------------------
-/**#@+*
- * URL or URL component, derived just once for later usage.
- */
-// first derive domain, path and base_url, as well as cookie path just once
-// so they are ready for later use.
-// detect actual scheme (might be https!)	@@@ TEST
-// please recopy modif into setup/test/test-mod-rewrite.php
-$scheme = ((isset($_SERVER['HTTPS'])) && !empty($_SERVER['HTTPS']) && 'off' != $_SERVER['HTTPS']) ? 'https://' : 'http://';
-$server_port = ':'.$_SERVER['SERVER_PORT'];
-if ((('http://' == $scheme) && (':80' == $server_port)) || (('https://' == $scheme) && (':443' == $server_port)))
-{
-	$server_port = '';
-}
-/**
- * URL fragment consisting of scheme + domain part.
- * Represents the domain URL where the current instance of Wikka is located.
- * This variable can be overriden in {@link override.config.php}
- *
- * @var string
- */
-if (!defined('WIKKA_BASE_DOMAIN_URL')) define('WIKKA_BASE_DOMAIN_URL', $scheme.$_SERVER['SERVER_NAME'].$server_port);
-/**
- * URL fragment consisting of a path component.
- * Points to the instance of Wikka within {@link WIKKA_BASE_DOMAIN_URL}.
- *
- * @var string
- */
-define('WIKKA_BASE_URL_PATH', preg_replace('/wikka\\.php/', '', $_SERVER['SCRIPT_NAME']));
-/**
- * Base URL consisting of {@link WIKKA_BASE_DOMAIN_URL} and {@link WIKKA_BASE_URL_PATH} concatenated.
- * Ready to append a relative path to a "static" file to.
- *
- * @var string
- */
-define('WIKKA_BASE_URL', WIKKA_BASE_DOMAIN_URL.WIKKA_BASE_URL_PATH);
-/**
- * Path to be used for cookies.
- * Derived from {@link WIKKA_BASE_URL_PATH}
- *
- * @var string
- */
-define('WIKKA_COOKIE_PATH', ('/' == WIKKA_BASE_URL_PATH) ? '/' : substr(WIKKA_BASE_URL_PATH, 0, -1));
-/**
- * Default number of hours after which a permanent cookie is to expire: corresponds to 90 days.
- */
-if (!defined('DEFAULT_COOKIE_EXPIRATION_HOURS')) define('DEFAULT_COOKIE_EXPIRATION_HOURS',90 * 24);
-/**
- * Path for Wikka libs
- *
- * @var string
- */
-if(!defined('WIKKA_LIBRARY_PATH')) define('WIKKA_LIBRARY_PATH', 'lib');
-
-/**#@-*/
-// ----------------------- END URL DOMAIN / PATH -------------------------------
-
-
+// ----------------------- LOAD CONFIGURATION -------------------------------
 $wakkaDefaultConfig = array(
 	'dbms_host'					=> 'localhost',
 	'dbms_database'				=> 'wikka',
@@ -368,6 +311,7 @@ $wakkaDefaultConfig = array(
 	'wakka_name'				=> 'MyWikkaSite',
 //	'base_url'					=> $t_scheme.$t_domain.$t_port.$t_request.$t_query,
 	'rewrite_mode'				=> $t_rewrite_mode,
+    'behind_reverse_proxy'      => '0',
 	'wiki_suffix'				=> '@wikka',
 	'enable_user_host_lookup'	=> '0',	#enable (1) or disable (0, default) lookup of user hostname from IP address
 
@@ -498,6 +442,78 @@ if(isset($wakkaConfig['menu_config_path']) && preg_match('/plugins\/config/', $w
 db_configOptions($wakkaDefaultConfig, $wakkaConfig);
 
 $wakkaConfig = array_merge($wakkaDefaultConfig, $wakkaConfig);	// merge defaults with config from file
+// ----------------------- END LOAD CONFIGURATION -------------------------------
+
+// ---------------------- DEFINE URL DOMAIN / PATH -----------------------------
+/**#@+*
+ * URL or URL component, derived just once for later usage.
+ */
+// first derive domain, path and base_url, as well as cookie path just once
+// so they are ready for later use.
+// detect actual scheme (might be https!)	@@@ TEST
+// please recopy modif into setup/test/test-mod-rewrite.php
+$scheme = ((isset($_SERVER['HTTPS'])) && !empty($_SERVER['HTTPS']) && 'off' != $_SERVER['HTTPS']) ? 'https://' : 'http://';
+$server_name = $_SERVER['SERVER_NAME'];
+$server_port = ':'.$_SERVER['SERVER_PORT'];
+// Check for X-Forwarded- headers (but only if this instance is configured
+// behind a reverse proxy!)
+if(isset($wakkaConfig["behind_reverse_proxy"]) && $wakkaConfig["behind_reverse_proxy"] && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    if(isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'].'://';
+    }
+    $server_name = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    if(isset($_SERVER['HTTP_X_FORWARDED_PORT'])) {
+        $server_port = ':'.$_SERVER['HTTP_X_FORWARDED_PORT'];
+    }
+}
+if ((('http://' == $scheme) && (':80' == $server_port)) || (('https://' == $scheme) && (':443' == $server_port)))
+{
+	$server_port = '';
+}
+
+/**
+ * URL fragment consisting of scheme + domain part.
+ * Represents the domain URL where the current instance of Wikka is located.
+ * This variable can be overriden in {@link override.config.php}
+ *
+ * @var string
+ */
+if (!defined('WIKKA_BASE_DOMAIN_URL')) define('WIKKA_BASE_DOMAIN_URL', $scheme.$server_name.$server_port);
+/**
+ * URL fragment consisting of a path component.
+ * Points to the instance of Wikka within {@link WIKKA_BASE_DOMAIN_URL}.
+ *
+ * @var string
+ */
+define('WIKKA_BASE_URL_PATH', preg_replace('/wikka\\.php/', '', $_SERVER['SCRIPT_NAME']));
+/**
+ * Base URL consisting of {@link WIKKA_BASE_DOMAIN_URL} and {@link WIKKA_BASE_URL_PATH} concatenated.
+ * Ready to append a relative path to a "static" file to.
+ *
+ * @var string
+ */
+define('WIKKA_BASE_URL', WIKKA_BASE_DOMAIN_URL.WIKKA_BASE_URL_PATH);
+/**
+ * Path to be used for cookies.
+ * Derived from {@link WIKKA_BASE_URL_PATH}
+ *
+ * @var string
+ */
+define('WIKKA_COOKIE_PATH', ('/' == WIKKA_BASE_URL_PATH) ? '/' : substr(WIKKA_BASE_URL_PATH, 0, -1));
+/**
+ * Default number of hours after which a permanent cookie is to expire: corresponds to 90 days.
+ */
+if (!defined('DEFAULT_COOKIE_EXPIRATION_HOURS')) define('DEFAULT_COOKIE_EXPIRATION_HOURS',90 * 24);
+/**
+ * Path for Wikka libs
+ *
+ * @var string
+ */
+if(!defined('WIKKA_LIBRARY_PATH')) define('WIKKA_LIBRARY_PATH', 'lib');
+
+/**#@-*/
+// ----------------------- END URL DOMAIN / PATH -------------------------------
+
 
 // ---------------------------- LANGUAGE DEFAULTS -----------------------------
 
@@ -522,12 +538,12 @@ $wakkaConfig = array_merge($wakkaDefaultConfig, $wakkaConfig);	// merge defaults
  */
 $default_lang = $wakkaConfig['default_lang'];
 $fallback_lang = 'en';
-$default_lang_path = 'lang'.DIRECTORY_SEPARATOR.$default_lang;
-$plugin_lang_path = $wakkaConfig['lang_path'].DIRECTORY_SEPARATOR.$default_lang;
-$fallback_lang_path = 'lang'.DIRECTORY_SEPARATOR.$fallback_lang;
-$default_lang_strings = $default_lang_path.DIRECTORY_SEPARATOR.$default_lang.'.inc.php';
-$plugin_lang_strings = $plugin_lang_path.DIRECTORY_SEPARATOR.$default_lang.'.inc.php';
-$fallback_lang_strings = $fallback_lang_path.DIRECTORY_SEPARATOR.$fallback_lang.'.inc.php';
+$default_lang_path = 'lang/'.$default_lang;
+$plugin_lang_path = $wakkaConfig['lang_path'].'/'.$default_lang;
+$fallback_lang_path = 'lang/'.$fallback_lang;
+$default_lang_strings = $default_lang_path.'/'.$default_lang.'.inc.php';
+$plugin_lang_strings = $plugin_lang_path.'/'.$default_lang.'.inc.php';
+$fallback_lang_strings = $fallback_lang_path.'/'.$fallback_lang.'.inc.php';
 $lang_packs_found = false;
 if (file_exists($plugin_lang_strings))
 {
@@ -592,11 +608,11 @@ if (file_exists($multisite_configfile))
     else
     {
         $requested_host = str_replace('_','.',$configkey);
-        $configpath = $multiConfig['local_config'].DIRECTORY_SEPARATOR.$requested_host;
+        $configpath = $multiConfig['local_config'].'/'.$requested_host;
         $multiConfig[$configkey] = $requested_host;
     }
 
-    $local_configfile = $configpath.DIRECTORY_SEPARATOR.'local.config.php';
+    $local_configfile = $configpath.'/local.config.php';
 /**
  * As each site may differ in its configuration and capabilities, we should consider using
  * plugin directories below the $configpath. Effectively, this replaces the 1.1.6.6 plugins
@@ -604,13 +620,13 @@ if (file_exists($multisite_configfile))
 */
 
     $localDefaultConfig = array(
-    	'menu_config_path'			=> $configpath.DIRECTORY_SEPARATOR.'config'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'config'.PATH_DIVIDER.'config',
-        'action_path'				=> $configpath.DIRECTORY_SEPARATOR.'actions'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'actions'.PATH_DIVIDER.'actions',
-        'handler_path'				=> $configpath.DIRECTORY_SEPARATOR.'handlers'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'handlers'.PATH_DIVIDER.'handlers',
-        'wikka_formatter_path'		=> $configpath.DIRECTORY_SEPARATOR.'formatters'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'formatters'.PATH_DIVIDER.'formatters',        # (location of Wikka formatter - REQUIRED)
-        'wikka_highlighters_path'	=> $configpath.DIRECTORY_SEPARATOR.'formatters'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'formatters'.PATH_DIVIDER.'formatters',        # (location of Wikka code highlighters - REQUIRED)
-        'wikka_template_path'		=> $configpath.DIRECTORY_SEPARATOR.'templates'.PATH_DIVIDER.'plugins'.DIRECTORY_SEPARATOR.'templates'.PATH_DIVIDER.'templates',        # (location of Wikka template files - REQUIRED)
-        'upload_path'				=> $configpath.DIRECTORY_SEPARATOR.'uploads'
+    	'menu_config_path'			=> $configpath.'/config'.PATH_DIVIDER.'plugins/config'.PATH_DIVIDER.'config',
+        'action_path'				=> $configpath.'/actions'.PATH_DIVIDER.'plugins/actions'.PATH_DIVIDER.'actions',
+        'handler_path'				=> $configpath.'/handlers'.PATH_DIVIDER.'plugins/handlers'.PATH_DIVIDER.'handlers',
+        'wikka_formatter_path'		=> $configpath.'/formatters'.PATH_DIVIDER.'plugins/formatters'.PATH_DIVIDER.'formatters',        # (location of Wikka formatter - REQUIRED)
+        'wikka_highlighters_path'	=> $configpath.'/formatters'.PATH_DIVIDER.'plugins/formatters'.PATH_DIVIDER.'formatters',        # (location of Wikka code highlighters - REQUIRED)
+        'wikka_template_path'		=> $configpath.'/templates'.PATH_DIVIDER.'plugins/templates'.PATH_DIVIDER.'templates',        # (location of Wikka template files - REQUIRED)
+        'upload_path'				=> $configpath.'/uploads'
     );
     $localConfig = array();
     if (!file_exists($configpath))
@@ -621,15 +637,15 @@ if (file_exists($multisite_configfile))
         {
             $partialpath .= $part;
             if (!file_exists($partialpath)) mkdir($partialpath,0755);
-            $partialpath .= DIRECTORY_SEPARATOR;
+            $partialpath .= '/';
         }
-        mkdir($configpath.DIRECTORY_SEPARATOR.'config',0700);
-        mkdir($configpath.DIRECTORY_SEPARATOR.'actions',0700);
-        mkdir($configpath.DIRECTORY_SEPARATOR.'handlers',0700);
-        mkdir($configpath.DIRECTORY_SEPARATOR.'handlers'.DIRECTORY_SEPARATOR.'page',0700);
-        mkdir($configpath.DIRECTORY_SEPARATOR.'formatters',0700);
-        mkdir($configpath.DIRECTORY_SEPARATOR.'templates',0700);
-        mkdir($configpath.DIRECTORY_SEPARATOR.'uploads',0755);
+        mkdir($configpath.'/config',0700);
+        mkdir($configpath.'/actions',0700);
+        mkdir($configpath.'/handlers',0700);
+        mkdir($configpath.'/handlers/page',0700);
+        mkdir($configpath.'/formatters',0700);
+        mkdir($configpath.'/templates',0700);
+        mkdir($configpath.'/uploads',0755);
 //        if(file_exists($wakkaConfig['stylesheet'])) copy($wakkaConfig['stylesheet'],$localDefaultConfig['stylesheet']);
     }
     else if (file_exists($local_configfile)) include($local_configfile);
@@ -682,13 +698,13 @@ if ($wakkaConfig['wakka_version'] !== WAKKA_VERSION)
 	 */
 	$installAction = 'default';
 	if (isset($_GET['installAction'])) $installAction = trim(GetSafeVar('installAction'));	#312
-	if (file_exists('setup'.DIRECTORY_SEPARATOR.'header.php'))
-	include('setup'.DIRECTORY_SEPARATOR.'header.php'); else print '<em class="error">'.ERROR_SETUP_HEADER_MISSING.'</em>'; #89
+	if (file_exists('setup/header.php'))
+	include('setup/header.php'); else print '<em class="error">'.ERROR_SETUP_HEADER_MISSING.'</em>'; #89
 	if
-	(file_exists('setup'.DIRECTORY_SEPARATOR.$installAction.'.php'))
-	include('setup'.DIRECTORY_SEPARATOR.$installAction.'.php'); else print '<em class="error">'.ERROR_SETUP_FILE_MISSING.'</em>'; #89
-	if (file_exists('setup'.DIRECTORY_SEPARATOR.'footer.php'))
-	include('setup'.DIRECTORY_SEPARATOR.'footer.php'); else print '<em class="error">'.ERROR_SETUP_FOOTER_MISSING.'</em>'; #89
+	(file_exists('setup/'.$installAction.'.php'))
+	include('setup/'.$installAction.'.php'); else print '<em class="error">'.ERROR_SETUP_FILE_MISSING.'</em>'; #89
+	if (file_exists('setup/footer.php'))
+	include('setup/footer.php'); else print '<em class="error">'.ERROR_SETUP_FOOTER_MISSING.'</em>'; #89
 	exit;
 }
 

@@ -715,21 +715,7 @@ class Wakka
 	 */
 	function ReturnSafeHTML($html)
 	{
-                if ( $this->GetConfigValue('htmlpurifier_path')!="" ) {
-                    $htmlpurifier_classpath = $this->GetConfigValue('htmlpurifier_path').DIRECTORY_SEPARATOR.'HTMLPurifier.standalone.php';
-                    #print $safehtml_classpath;
-                    require_once $htmlpurifier_classpath;
-
-                    // Instantiate the handler
-                    $config_purifier = HTMLPurifier_Config::createDefault();
-                    $purifier = new HTMLPurifier($config_purifier);
-                    $filtered_output = $purifier->purify($html);
-                    #$safehtml = instantiate('safehtml');
-                    #$filtered_output = $safehtml->parse($html);
-
-                    return $filtered_output;
-                }
-		$safehtml_classpath = $this->GetConfigValue('safehtml_path').DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'safehtml.php';
+		$safehtml_classpath = $this->GetConfigValue('safehtml_path').'/classes/safehtml.php';
 		require_once $safehtml_classpath;
 
 		// Instantiate the handler
@@ -1061,7 +1047,7 @@ class Wakka
 	function GeSHi_Highlight($sourcecode, $language, $start=0)
 	{
 		// create GeSHi object
-		include_once($this->GetConfigValue('geshi_path').DIRECTORY_SEPARATOR.'geshi.php');
+		include_once($this->GetConfigValue('geshi_path').'/geshi.php');
 		$geshi = instantiate('GeSHi', $sourcecode, $language, $this->GetConfigValue('geshi_languages_path'));				# create object by reference
 
 		$geshi->enable_classes();								# use classes for hilighting (must be first after creating object)
@@ -1697,7 +1683,7 @@ class Wakka
 	 * @uses	Wakka::$page_title
 	 *
 	 * @param	string	$page_title	the new title of the page.
-	 * @return	void
+	 * @return  string  formatted $page_title	
 	 * @todo	probably better to use the already-existing Wakka::$page array to store this?
 	 */
 	function SetPageTitle($page_title)
@@ -1705,8 +1691,10 @@ class Wakka
 		$stripped_page_title = trim(strip_tags($page_title));
 		if(null != $stripped_page_title)
 		{
-			$this->page_title = $stripped_page_title;
+			$this->page_title = (strlen($stripped_page_title) > 75) ? 
+                substr($stripped_page_title, 0, 75) : $stripped_page_title;
 		}
+		return $this->page_title;
 	}
 
 	/**
@@ -2021,37 +2009,6 @@ class Wakka
 				);
 
 			// add new revision
-			if($this->GetConfigValue('dbms_type') == "sqlite"){
-				$this->Query("
-					INSERT INTO ".$this->GetConfigValue('table_prefix')."pages
-					(  tag, title     , time                      , owner, user, note, latest, body ) VALUES
-					( :tag,:page_title,datetime('now','localtime'),:owner,:user,:note,'Y'    ,:body )",
-						array(':tag' => $tag,
-						    ':page_title' => $page_title,
-							  ':owner' => $owner,
-							  ':user' => $user,
-							  ':note' => $note,
-							  ':body' => $body)
-					);
-			} else {
-			$this->Query("
-				INSERT INTO ".$this->GetConfigValue('table_prefix')."pages
-				SET	tag		= :tag,
-				  title = :page_title,
-					time	= now(),
-					owner	= :owner,
-					user	= :user,
-					note	= :note,
-					latest	= 'Y',
-					body	= :body",
-					array(':tag' => $tag,
-					      ':page_title' => $page_title,
-						  ':owner' => $owner,
-						  ':user' => $user,
-						  ':note' => $note,
-						  ':body' => $body)
-				);
-			}
 			$params = array(':tag' => $tag,
 			                ':page_title' => $page_title,
 							':owner' => $owner,
@@ -2288,7 +2245,7 @@ class Wakka
 		if (preg_match("#(={3,6})([^=].*?)\\1#s", $body, $matches))
 		{
 			list($h_fullmatch, $h_markup, $h_heading) = $matches;
-			$page_title = $h_heading;
+			$page_title = $this->SetPageTitle($h_heading);
 		}
 		// We need trim because $this->Format() appends a carriage return
 		return trim(strip_tags($this->Format($page_title)));
@@ -2810,7 +2767,7 @@ class Wakka
 
 		// is this an interwiki link?
 		// before the : should be a WikiName; anything after can be (nearly) anything that's allowed in a URL
-		if (preg_match('/^([A-Z���][A-Za-z�������])[:](\S*)$/', $tag, $matches))	// @@@ FIXME #34 (inconsistent with Formatter)
+		if (preg_match('/^([[:upper:]][[:alpha:]]+)[:](\S*)$/', $tag, $matches))	// @@@ FIXME #34 (inconsistent with Formatter)
 		{
 			$url = $this->GetInterWikiUrl($matches[1], $matches[2]);
 			$class = 'interwiki';
@@ -2861,7 +2818,7 @@ class Wakka
 		//return $url ? '<a class="'.$class.'" href="'.$url.'">'.$text.'</a>' : $text;
 		if ('' != $url)
 		{
-			$result = '<a class="'.$class.'" href="'.$url.'">'.$text.'</a>';
+			$result = '<a class="'.$class.'" href="'.$url.'"'.$title_attr.'>'.$text.'</a>';
 		}
 		elseif ('' != $link)
 		{
@@ -3226,13 +3183,11 @@ class Wakka
 	 * @uses	Config::$theme
 	 * @uses	Config::wikka_template_path
 	 * @param  string path_sep Use this to override the OS default
-	 * DIRECTORY_SEPARATOR (usually used in conjunction with CSS path
-	 * generation). Default is DIRECTORY_SEPARATOR.
 	 * @param  string theme_override Specify a specific theme. Default is NULL (use configuration theme).
 	 *
      * @return string A fully-qualified pathname or NULL if none found
 	 */
-	 function GetThemePath($path_sep = DIRECTORY_SEPARATOR, $theme_override = NULL)
+	 function GetThemePath($path_sep = '/', $theme_override = NULL)
 	 {
 	 	//check if custom theme is set in user preferences
 	 	if ($user = $this->GetUser())
@@ -3715,7 +3670,7 @@ class Wakka
 				$this->StopLinkTracking();
 		}
 		$result =
-		$this->IncludeBuffered(strtolower($action_name).DIRECTORY_SEPARATOR.strtolower($action_name).'.php',
+		$this->IncludeBuffered(strtolower($action_name).'/'.strtolower($action_name).'.php',
 		sprintf(T_("Unknown action \"%s\""), '"'.$action_name.'"'), $vars, $this->GetConfigValue('action_path'));
 		if ($link_tracking_state)
 		{
@@ -3763,7 +3718,7 @@ class Wakka
 			// valid handler name; now make sure it's lower case
 			$handler = strtolower($handler);
 		}
-		$handlerLocation = $handler.DIRECTORY_SEPARATOR.$handler.'.php';	#89
+		$handlerLocation = $handler.'/'.$handler.'.php';	#89
                 $tempOutput = $this->IncludeBuffered($handlerLocation, '', '', $this->GetConfigValue('handler_path'));
                 if (FALSE===$tempOutput)
                 {
@@ -3812,8 +3767,8 @@ class Wakka
 		$handler = $parts[0];
 #echo 'handler: '.$handler.'<br/>';
 		// now check if a handler by that name exists
-#echo 'checking path: '.$this->GetConfigValue('handler_path').DIRECTORY_SEPARATOR.'page'.DIRECTORY_SEPARATOR.$handler.'.php'.'<br/>';
-		$exists = $this->BuildFullpathFromMultipath($handler.DIRECTORY_SEPARATOR.$handler.'.php', $this->GetConfigValue('handler_path'));
+#echo 'checking path: '.$this->GetConfigValue('handler_path').'/page'.'/'.$handler.'.php'.'<br/>';
+		$exists = $this->BuildFullpathFromMultipath($handler.'/'.$handler.'.php', $this->GetConfigValue('handler_path'));
 		// return conclusion
 		if(TRUE===empty($exists))
 		{
@@ -4564,30 +4519,6 @@ class Wakka
 		{
 			$parent_id = 'NULL';
 		}
-		if($this->GetConfigValue('dbms_type') == "sqlite"){
-			$this->Query("
-				INSERT INTO ".$this->GetConfigValue('table_prefix')."comments
-				(  page_tag, time                       , comment, parent   , user ) VALUES
-				( :page_tag, datetime('now','localtime'),:comment,:parent_id,:user )",
-				array(':page_tag' => $page_tag,
-				      ':comment' => $comment,
-					  ':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
-					  ':user' => $user)
-				);
-		} else {
-		$this->Query("
-			INSERT INTO ".$this->GetConfigValue('table_prefix')."comments
-			SET page_tag = :page_tag,
-				time = now(),
-				comment = :comment,
-				parent = :parent_id,
-				user = :user",
-			array(':page_tag' => $page_tag,
-			      ':comment' => $comment,
-				  ':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
-				  ':user' => $user)
-			);
-		}
 		$params = array(':page_tag' => $page_tag,
 		                ':comment' => $comment,
 						':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
@@ -5160,15 +5091,12 @@ class Wakka
 	 *			construction of fully-qualified filepath
 	 * @param string $pathlist mandatory: list of
 	 *			paths (delimited by ":", ";", or ",")
-	 * @param  string path_sep Use this to override the OS default
-     *              DIRECTORY_SEPARATOR (usually used in conjunction with CSS path
-     *              generation). Default is DIRECTORY_SEPARATOR.
 	 * @param  boolean $checkIfFileExists optional: if TRUE, returns
 	 *			only a pathname that points to a file that exists
 	 *			(default)
 	 * @return string A fully-qualified pathname or NULL if none found
 	 */
-	function BuildFullpathFromMultipath($filename, $pathlist, $path_sep = DIRECTORY_SEPARATOR, $checkIfFileExists=TRUE)
+	function BuildFullpathFromMultipath($filename, $pathlist, $path_sep = '/', $checkIfFileExists=TRUE)
 	{
 		$paths = preg_split('/;|:|,/', $pathlist);
 		if(empty($paths[0])) return NULL;

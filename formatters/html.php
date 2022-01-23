@@ -697,7 +697,7 @@ if (!function_exists("wakka2callback")) # DotMG [many lines] : Unclosed tags fix
 			// check if GeSHi path is set and we have a GeSHi highlighter for this language
 			if (isset($language) &&
 				isset($wakka->config['geshi_path']) &&
-				file_exists($geshi_hi_path.DIRECTORY_SEPARATOR.$language.'.php'))
+				file_exists($geshi_hi_path.'/'.$language.'.php'))
 			{
 				// check if specified filename is valid and generate code block header
 				if (isset($filename) &&
@@ -721,7 +721,7 @@ if (!function_exists("wakka2callback")) # DotMG [many lines] : Unclosed tags fix
 			// check Wikka highlighter path is set and if we have an internal Wikka highlighter
 			elseif (isset($language) &&
 					isset($wakka->config['wikka_formatter_path']) &&
-					file_exists($wikka_hi_path.DIRECTORY_SEPARATOR.$language.'.php') && 
+					file_exists($wikka_hi_path.'/'.$language.'.php') && 
 					'wakka' != $language)
 			{
 				// use internal Wikka highlighter
@@ -989,8 +989,9 @@ $text = preg_replace_callback(
 	"\n".																					# new line
 	"/ms", "wakka2callback", $text."\n"); #append \n (#444)
 
-// we're cutting the last <br />
+// we're cutting the last <br />/newline character
 $text = preg_replace("/<br \/>$/","", $text);
+$text = preg_replace("/\n$/","", $text);
 
 // @@@ don't report generation time unless some "debug mode" is on
 if (isset($format_option) && preg_match(PATTERN_MATCH_PAGE_FORMATOPTION, $format_option))
