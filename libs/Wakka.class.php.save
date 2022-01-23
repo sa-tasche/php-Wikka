@@ -64,11 +64,6 @@ if (!defined('PATTERN_REPLACE_IMG_WITH_ALTTEXT')) define('PATTERN_REPLACE_IMG_WI
 if (!defined('PATTERN_INVALID_ID_CHARS')) define ('PATTERN_INVALID_ID_CHARS', '/[^A-Za-z0-9_:.-\s]/');
 /**#@-*/
 
-if(!defined('NO_FILE_UPLOADED')) define ('NO_FILE_UPLOADED', "<em class='error'>No file uploaded</em>");
-if(!defined('ERROR_DURING_FILE_UPLOAD')) define ('ERROR_DURING_FILE_UPLOAD', "<em class='error'>There was an error uploading your file.  Please try again.</em>");
-if(!defined('ERROR_MAX_FILESIZE_EXCEEDED')) define('ERROR_MAX_FILESIZE_EXCEEDED', "<em class='error'>Attempted file upload was too big.  Maximum allowed size is %d MB.</em>"); 
-if(!defined('ERROR_FILE_EXISTS')) define('ERROR_FILE_EXISTS', "<em class='error'>There is already a file named <tt>%s</tt>. Please rename before uploading or delete the existing file first.</em>");
-
 /**#@+
  * String constant defining a regularly used bit of constant text.
  */
@@ -249,12 +244,51 @@ class Wakka
 		$this->config = $config;
 
 		// Set up PDO object
+<<<<<<< HEAD
+		$dsn = $this->GetConfigValue('dbms_type') . ':' .
+			   'host=' . $this->GetConfigValue('dbms_host') . ';' .
+			   'dbname=' . $this->GetConfigValue('dbms_database');
+		$user = $this->GetConfigValue('dbms_user');
+		$pass = $this->GetConfigValue('dbms_password');
+		try {
+			$this->dblink = new PDO($dsn, $user, $pass);
+		} catch(PDOException $e) {
+			die('<em class="error">'.T_("PDO connection error!").'</em>');
+||||||| merged common ancestors
+		if($this->GetConfigValue('dbms_type') == "sqlite"){
+			$dsn = $this->GetConfigValue('dbms_type') . ':' . $this->GetConfigValue('dbms_file');
+			try {
+				$this->dblink = new PDO($dsn);
+			} catch(PDOException $e) {
+				die('<em class="error">'.T_("PDO connection error!").'</em>');
+			}
+		}else{
+			$dsn = $this->GetConfigValue('dbms_type') . ':' .
+					 'host=' . $this->GetConfigValue('dbms_host') . ';' .
+					 'dbname=' . $this->GetConfigValue('dbms_database');
+			$user = $this->GetConfigValue('dbms_user');
+			$pass = $this->GetConfigValue('dbms_password');
+			try {
+				$this->dblink = new PDO($dsn, $user, $pass);
+			} catch(PDOException $e) {
+				die('<em class="error">'.T_("PDO connection error!").'</em>');
+			}
+=======
 		$this->dblink = db_getPDO($this);
 		if($this->dblink == null) {
 			die('<em class="error">'.T_("DB connection error in Wakka()").'</em>');
+>>>>>>> sqlite installer support (see #1230 notes)
 		}
+<<<<<<< HEAD
 		$this->dblink->query("SET NAMES 'utf8'");
 
+||||||| merged common ancestors
+
+		$this->dblink->query("SET NAMES 'utf8'");
+
+=======
+
+>>>>>>> sqlite installer support (see #1230 notes)
 		// Don't emulate prepare statements (to prevent injection attacks)
 		$this->dblink->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		// Throw an exception on PDO::query calls
@@ -312,15 +346,14 @@ class Wakka
 			}
 		} catch(PDOException $e) {
 			ob_end_clean();
-/*
 			die('<em class="error">' .
 			    T_("Query failed in Query(): ") .
 				$e->getCode() .
 				'</em>');
-      */
+
 			// DEBUG
 			// Don't use this in production!
-
+			/*
 			print $e;
 			print "<br/>";
 			print "Query: ".$query;
@@ -329,7 +362,7 @@ class Wakka
 			    T_("Query failed in Query(): ") .
 				$e->getCode() .
 				'</em>');
-
+			*/
 		}
 		if ($object && $this->GetConfigValue('sql_debugging'))
 		{
@@ -2021,6 +2054,25 @@ class Wakka
 				);
 
 			// add new revision
+<<<<<<< HEAD
+			$this->Query("
+				INSERT INTO ".$this->GetConfigValue('table_prefix')."pages
+				SET	tag		= :tag,
+				  title = :page_title,
+					time	= now(),
+					owner	= :owner,
+					user	= :user,
+					note	= :note,
+					latest	= 'Y',
+					body	= :body",
+					array(':tag' => $tag,
+					      ':page_title' => $page_title,
+						  ':owner' => $owner,
+						  ':user' => $user,
+						  ':note' => $note,
+						  ':body' => $body)
+				);
+||||||| merged common ancestors
 			if($this->GetConfigValue('dbms_type') == "sqlite"){
 				$this->Query("
 					INSERT INTO ".$this->GetConfigValue('table_prefix')."pages
@@ -2052,6 +2104,7 @@ class Wakka
 						  ':body' => $body)
 				);
 			}
+=======
 			$params = array(':tag' => $tag,
 			                ':page_title' => $page_title,
 							':owner' => $owner,
@@ -2059,6 +2112,7 @@ class Wakka
 							':note' => $note,
 							':body' => $body);
 			db_addNewRevision($this, $params);
+>>>>>>> sqlite installer support (see #1230 notes)
 
 			// WikiPing
 			if ($pingdata = $this->GetPingParams($this->GetConfigValue('wikiping_server'), $tag, $user, $note))
@@ -3785,7 +3839,7 @@ class Wakka
         function wrapHandlerError($errorMessage)
         {
                 $errorMessage = $this->htmlspecialchars_ent(trim($errorMessage));
-                $errorMessage = '<!-- <wiki-error>handler error</wiki-error> --><div id="content"><em class="error">'.$errorMessage.'</em></div>';
+                $errorMessage = '<div id="content"><em class="error">'.$errorMessage.'</em></div>';
 
                 return $errorMessage;
         }
@@ -3845,7 +3899,7 @@ class Wakka
 		// directory traversal or XSS (via handler *name*)
 		if (!preg_match('/^([a-zA-Z0-9_.-]+)$/', $formatter)) # see also #34
 		{
-			$out = '<!-- <wiki-error>unknown action</wiki-error> --><em class="error">'.T_("Unknown formatter; the formatter name must not contain special characters.").'</em>';	# [SEC]
+			$out = '<em class="error">'.T_("Unknown formatter; the formatter name must not contain special characters.").'</em>';	# [SEC]
 		}
 		else
 		{
@@ -4102,6 +4156,17 @@ class Wakka
 		// older than PERSISTENT_COOKIE_EXPIRY, as this is not a
 		// time-critical function for the user.  The assumption here
 		// is that server-side sessions have long ago been cleaned up by PHP.
+        if($this->GetConfigValue('dbms_type') == "sqlite") {
+			$this->Query("
+				DELETE FROM ".$this->GetConfigValue('table_prefix')."sessions
+				WHERE DATETIME('now','-3 month') > session_start"
+				);
+		} else {
+            $this->Query("
+                DELETE FROM ".$this->GetConfigValue('table_prefix')."sessions
+                WHERE DATE_SUB(NOW(), INTERVAL ".PERSISTENT_COOKIE_EXPIRY." SECOND) > session_start"
+                );
+        }
 		db_purgeSessions($this);
 		$this->registered = false;
 	}
@@ -4538,7 +4603,7 @@ class Wakka
 			WHERE c2.page_tag IS NULL
 				AND (comments.status IS NULL or comments.status != 'deleted')
 					".$where."
-			ORDER BY comments.time DESC
+			ORDER BY time DESC
 			LIMIT ".intval($limit);
 		return $this->LoadAll($sql, $params);
 	}
@@ -4564,6 +4629,21 @@ class Wakka
 		{
 			$parent_id = 'NULL';
 		}
+<<<<<<< HEAD
+		$this->Query("
+			INSERT INTO ".$this->GetConfigValue('table_prefix')."comments
+			SET page_tag = :page_tag,
+				time = now(),
+				comment = :comment,
+				parent = :parent_id,
+				user = :user",
+			array(':page_tag' => $page_tag,
+			      ':comment' => $comment,
+				  ':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
+				  ':user' => $user)
+			);
+||||||| merged common ancestors
+
 		if($this->GetConfigValue('dbms_type') == "sqlite"){
 			$this->Query("
 				INSERT INTO ".$this->GetConfigValue('table_prefix')."comments
@@ -4588,11 +4668,14 @@ class Wakka
 				  ':user' => $user)
 			);
 		}
+=======
+		
 		$params = array(':page_tag' => $page_tag,
 		                ':comment' => $comment,
 						':parent_id' => ($parent_id == 'NULL') ? null : $parent_id,
 						':user' => $user);
 		db_saveComment($this, $params);
+>>>>>>> sqlite installer support (see #1230 notes)
 	}
 
 	/**
@@ -4650,8 +4733,7 @@ class Wakka
 
 		// set default tag & check if user is owner
 		if (!$tag = trim($tag)) $tag = $this->GetPageTag();
-
-		return ($this->GetPageOwner($tag) == $this->GetUserName());
+		if ($this->GetPageOwner($tag) == $this->GetUserName()) return TRUE;
 	}
 
 	/**
@@ -5209,7 +5291,7 @@ class Wakka
 	 *
 	 */
 	function Maintenance()
-	{ /*
+	{
 		// purge referrers
 		if ($days = $this->GetConfigValue("referrers_purge_time"))
 		{
@@ -5217,7 +5299,7 @@ class Wakka
 				DELETE FROM ".$this->GetConfigValue('table_prefix')."referrers
 				WHERE time < date_sub(now(), interval :days day)",
 				array(':days' => $days)
-			);
+				);
 		}
 
 		// purge old page revisions
@@ -5229,7 +5311,7 @@ class Wakka
 					AND latest = 'N'", array(':days' => $days)
 				);
 			$this->Query("delete from ".$this->GetConfigValue('table_prefix')."pages where time < date_sub(now(), interval :days day) and latest = 'N'", array(':days' => days));
-		} */
+		}
 	}
 
 	/**
@@ -5361,12 +5443,6 @@ class Wakka
 			header('Content-type: text/plain');
 			print($this->Handler($this->GetHandler()));
 		}
-		// list page handler
-		elseif ($this->GetHandler() == 'rawlist')
-		{
-			header('Content-type: text/plain');
-			print($this->handler($this->GetHandler()));
-		}
 		// grabcode page handler
 		elseif ($this->GetHandler() == 'grabcode')
 		{
@@ -5402,183 +5478,11 @@ class Wakka
 		}
 		else
 		{
-			print $this->Header();
-
-			// Upload?
-			if (isset($_POST['action']) && $_POST['action'] == 'upload')
-			{
-				// Show files to anyone with read access, we'll check for write access if they try to delete a file.
-				if ($this->page &&
-				    $this->HasAccess('read') &&
-				    ($this->method <> 'print.xml') &&
-				    ($this->method <> 'edit'))
-				{
-					$this->CheckUploadedFiles();
-				}
-			}
-
-			print $this->handler($this->GetHandler());
-
-			print $this->Footer();
-		}
-	}
-
-	//
-	//
-	//
-	function ListUploadedFiles( $upload_path )
-	{
-    	$num = 0;
-    	
-    	$dir = opendir( $upload_path );
-    	
-    	while( $file = readdir( $dir ) ) 
-    	{
-		// Ignore any files beginning with '.', including '.' and '..'
-		if (preg_match('/^\\./', $file))
-	        	continue;
-	        	
-			++$num;
-                
-			if( $this->IsAdmin( ) ) 
-            	$delete_link = '<a href="' . 
-            				   $this->href( 'files.xml', 
-            				   				$this->GetPageTag( ), 
-            				   				'action=delete&amp;file=' . urlencode( $file ) ) . 
-            				   '">x</a>';
-            else 
-            	$delete_link = "";
-            
-            $download_link = '<a href="' . 
-            				 $this->href( 'files.xml', 
-										  $this->GetPageTag( ), 
-            								'action=download&amp;file=' . rawurlencode($file) ) . 
-            				 '">' . $file . '</a>';
-            
-            $size = bytesToHumanReadableUsage( filesize( $upload_path . '/' . $file ) );
-            
-            $date = date( 'n/d/Y g:i a', filemtime( $upload_path . '/' . $file ) );
-
-            print  '<tr>
-					<td valign="top" align="center">&nbsp;&nbsp;' . $delete_link . '&nbsp;&nbsp;</td>
-                    <td valign="top">' . $download_link . '</td>
-					<td valign="top">&nbsp;<font size="-1" color="gray">' . $size . '</font></td>
-					<td valign="top">&nbsp;<font size="-1" color="gray">' . $date . '</font></td>
-					</tr>';
-        }
-    
-    	closedir( $dir );
-
-        return $num;
-    }
-
-	//
-	//
-	//
-	function ShowAttachedFiles( )
-	{
-   		if( !$this->HasAccess('write') )
-   			return;
-
-    	$upload_path = $this->config['upload_path'] . '/'. $this->GetPageTag( );
-
-    	$max_upload_size = $this->config[ 'max_upload_size' ];
-
-		// Table of uploaded/attached files
-        print  '<table cellspacing="0" cellpadding="0">
-				<tr>
-				<td>&nbsp;</td>
-				<td bgcolor="gray" valign="bottom" align="center"><font color="white" size="-2">Attachment</font></td>
-				<td bgcolor="gray" valign="bottom" align="center"><font color="white" size="-2">Size</font></td>
-				<td bgcolor="gray" valign="bottom" align="center"><font color="white" size="-2">Date Added</font></td>
-				</tr>';
-
-    	// files list
-    	if( is_dir( $upload_path ) )
-    		$files = $this->ListUploadedFiles( $upload_path );
-    	else
-    		$files = 0;
-    	
-    	if( $files == 0 )
-    		print "<tr><td>&nbsp;</td><td colspan='3' align='center'><font color='gray' size='-1'><em>&nbsp;&nbsp;&nbsp;</em></font></td></tr>";
-    	else
-    		print "<tr><td>&nbsp;</td></tr>";
-    	
-		// upload form
-    	if( $max_upload_size > 0 )
-    	{
-			echo $this->FormOpen( '', '', 'post', '', '', TRUE );
-
-        	print  '<tr>
-				<td>&nbsp;</td>
-				<td colspan="4" valign="top" align="right" nowrap><em>
-               	    <input type="hidden" name="action" value="upload"></input>
-					<input type="hidden" name="MAX_FILE_SIZE" value="' . $max_upload_size . '">
-                   	<font color="gray" size="-2">add new attachment:
-					<input type="file" name="file" style="padding: 0px; margin: 0px; font-size: 8px; height: 15px"></input>
-                   	<input type="submit" value="+" style="padding: 0px; margin: 0px; font-size: 8px; height: 15px"></input>
-					</font></em> 
-				</td>
-				</tr>';
-				
-	    	echo $this->FormClose( );
-	    }
-
-		print '</table>';
-	}
-   
-	function CheckUploadedFiles( )
-   	{
-		$upload_path = $this->config['upload_path'] . '/' . $this->GetPageTag( );	
-		$max_upload_size = $this->config[ 'max_upload_size' ];
-
-	    if( !is_dir( $upload_path ) ) 
-	    	mkdir_r( $upload_path );
-
-	    // upload action
-	    $uploaded = $_FILES['file'];
-
-		switch( $_FILES['file']['error'] )
-		{
-		case 0:
-			if( $_FILES["file"]["size"] > $max_upload_size ) 
-			{
-				echo sprintf(ERROR_MAX_FILESIZE_EXCEEDED, bytesToHumanReadableUsage($max_upload_size));
-			 	unlink( $uploaded['tmp_name'] );
-			} 
-			else 
-			{	
-				$strippedname = str_replace( "'", '', $uploaded['name'] );
-				$strippedname = stripslashes( $strippedname );
-
-				$destfile = $upload_path . '/' . $strippedname;
-
-				if( !file_exists( $destfile ) )
-				{
-					if (!move_uploaded_file($uploaded['tmp_name'], $destfile))
-					{
-						echo(ERROR_DURING_FILE_UPLOAD . "<br />\n");
-					}
-				}
-				else
-				{
-					echo sprintf(ERROR_FILE_EXISTS, $strippedname);
-				}
-			}
-			break;
-
-		case 1:
-		case 2: // File was too big.... as reported by the browser, respecting MAX_FILE_SIZE
-			echo sprintf(ERROR_MAX_FILESIZE_EXCEEDED, bytesToHumanReadableUsage($max_upload_size));
-			break;
-
-		case 3:
-			echo ERROR_DURING_FILE_UPLOAD;
-			break;
-
-		case 4:
-			echo NO_FILE_UPLOADED;
-			break;
+			//output page
+			$content_body = $this->Handler($this->GetHandler());
+			echo $this->Header();
+			echo $content_body;
+			echo $this->Footer();
 		}
 	}
 }

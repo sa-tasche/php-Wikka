@@ -34,10 +34,6 @@
  */
 
 // ---------------------- DEBUGGING AND ERROR REPORTING -----------------------
-if(version_compare(phpversion(),'5.3','<'))
-	error_reporting(E_ALL);
-else
-	error_reporting(E_ALL & !E_DEPRECATED);
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 // ---------------------- END DEBUGGING AND ERROR REPORTING -------------------
 
@@ -67,8 +63,8 @@ if(!defined('PATH_DIVIDER')) define('PATH_DIVIDER', ',');
 /**#@+
  * Minimum version requirement.
  */
-if (!defined('MINIMUM_PHP_VERSION'))	define('MINIMUM_PHP_VERSION', '5.0');
-if (!defined('MINIMUM_MYSQL_VERSION'))	define('MINIMUM_MYSQL_VERSION', '4.1');
+if (!defined('MINIMUM_PHP_VERSION'))	define('MINIMUM_PHP_VERSION', '7.0');
+if (!defined('MINIMUM_MYSQL_VERSION'))	define('MINIMUM_MYSQL_VERSION', '5.5');
 if (!defined('PHP_VERSION_ID')) {
     $version = explode('.', PHP_VERSION);
 
@@ -379,7 +375,7 @@ $wakkaDefaultConfig = array(
 	'handler_path'				=> 'plugins/handlers'.PATH_DIVIDER.'handlers',
 	'lang_path'					=> 'plugins/lang',
 	'gui_editor'				=> '1',
-	'default_comment_display'	=> 'threaded',
+	'default_comment_display'	=> '3', #threaded
 	'theme'						=> 'light',
 
 	// formatter and code highlighting paths
@@ -706,7 +702,8 @@ session_name(md5(BASIC_COOKIE_NAME.$wakkaConfig['wiki_suffix']));
 session_start();
 if(!isset($_SESSION['CSRFToken']))
 {
-	$_SESSION['CSRFToken'] = sha1(getmicrotime());
+    $_SESSION['CSRFToken'] = sha1(microtime());
+    $_SESSION['nextCSRFToken'] = $_SESSION['CSRFToken'];
 }
 
 // fetch wakka location
@@ -814,9 +811,15 @@ header('Content-Length: '.$page_length);
 
 ob_end_clean();
 
+/**
+ * Reset session CSRFToken for next GET/POST
+ */
+$_SESSION['CSRFToken'] = $_SESSION['nextCSRFToken'];
+$_SESSION['nextCSRFToken'] = sha1(microtime());
 
 /**
  * Output the page.
  */
 echo $page_output;
+
 ?>
