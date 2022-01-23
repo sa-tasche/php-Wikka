@@ -320,7 +320,7 @@ class Wakka
       */
 			// DEBUG
 			// Don't use this in production!
-
+            /*
 			print $e;
 			print "<br/>";
 			print "Query: ".$query;
@@ -329,6 +329,7 @@ class Wakka
 			    T_("Query failed in Query(): ") .
 				$e->getCode() .
 				'</em>');
+            */
 
 		}
 		if ($object && $this->GetConfigValue('sql_debugging'))
@@ -3824,73 +3825,6 @@ class Wakka
 	 */
 
 	/**
-	 * Authenticate a user from (persistent) cookies.
-	 *
-	 * @uses	Wakka::GetConfigValue()
-	 * @uses	Wakka::LoadAll()
-	 *
-	 * @return	boolean	TRUE if user authenticated from cookie, FALSE if not
-	 */
-	function authenticateUserFromCookies()
-	{
-		// init
-		$result = NULL;
-		$c_username	= $this->getWikkaCookie('user_name');
-		$c_pass		= $this->getWikkaCookie('pass');
-		// find user(s)
-		$users = $this->LoadAll("
-			SELECT *
-			FROM ".$this->GetConfigValue('table_prefix')."users
-			WHERE name = :c_username", array(':c_username' => $c_username)
-			);
-		// evaluate result
-		if (is_array($users))
-		{
-			$count = count($users);
-		}
-		switch (TRUE)
-		{
-			case (FALSE === $users):
-				$result = FALSE;		// query failed!!	@@@ notify admin
-				break;
-			case ($count > 1):
-				$result = FALSE;		// multiple users by same name: DB error!!	@@@ notify admin
-				break;
-			case ($count == 0):
-				$result = FALSE;		// not a registered user
-				break;
-			default:					// $count == 1 - OK: one user found
-				break;
-		}
-		// OK so far, check password
-		if (NULL === $result)
-		{
-			$user_rec = $users[0];		// get first (single) row
-			if (isset($user_rec['challenge']) && isset($user_rec['password']))
-			{
-				$pwd = md5($user_rec['challenge'].$user_rec['password']);
-				if ($c_pass != $pwd)
-				{
-					$result = FALSE;	// "No, not authenticated"
-				}
-				else
-				{
-					// valid password supplied: $user data is authenticated:
-					// cache username and login user
-					$result = TRUE;
-					$this->registered_users[] = $user_rec['name'];	// cache actual name as in DB
-					$this->loginUser($user_rec);
-				}
-			}
-			else
-			{
-				$result = FALSE;		// incomplete record: DB error!!
-			}
-		}
-		return $result;					// will be either TRUE or FALSE
-	}
-
-	/**
 	 * Load data for a given user (by name).
 	 *
 	 * Attempts to load the user data from the database, and if successful,
@@ -3927,8 +3861,8 @@ class Wakka
 	/**
 	 * Load a given user.
 	 *
-	 * in trunk: <b>Replaced by {@link Wakka::authenticateUserFromCookies()},
-	 * {@link Wakka::existsUser()} or {@link Wakka::loadUserData()} depending on
+     * in trunk: <b>Replaced by {@link Wakka::existsUser()} or 
+     * {@link Wakka::loadUserData()} depending on
 	 * purpose!</b>
 	 *
 	 * @param $name
@@ -3948,7 +3882,7 @@ class Wakka
 			return $this->LoadSingle("
 				SELECT *
 				FROM ".$this->GetConfigValue('table_prefix')."users
-				WHERE name = :name and password = :password
+				WHERE name = :name and md5_password = :password
 				LIMIT 1",
 				array(':name' => $name, ':password' => $password)
 				);
@@ -4028,7 +3962,7 @@ class Wakka
 	{
 		$_SESSION['user'] = $user;
 		$this->SetPersistentCookie('user_name', $user['name']);
-		$this->SetPersistentCookie('pass', $user['password']);
+		$this->SetPersistentCookie('pass', $user['md5_password']);
 		$this->registered = true;
 	}
 
@@ -5278,16 +5212,17 @@ class Wakka
 		$this->ReadInterWikiConfig();
 		if(!($this->GetMicroTime()%3)) $this->Maintenance();
 
+        $content = '';
 		if (preg_match('/\.(xml|mm)$/', $this->GetHandler()))
 		{
 			header('Content-type: text/xml');
-			print($this->Handler($this->GetHandler()));
+			$content = $this->Handler($this->GetHandler());
 		}
 		// raw page handler
 		elseif ($this->GetHandler() == "raw")
 		{
 			header('Content-type: text/plain');
-			print($this->Handler($this->GetHandler()));
+			$content = $this->Handler($this->GetHandler());
 		}
 		// list page handler
 		elseif ($this->GetHandler() == 'rawlist')
@@ -5298,57 +5233,73 @@ class Wakka
 		// grabcode page handler
 		elseif ($this->GetHandler() == 'grabcode')
 		{
-			print($this->Handler($this->GetHandler()));
+			$content = $this->Handler($this->GetHandler());
 		}
 		elseif (preg_match('/\.(gif|jpg|png)$/', $this->GetHandler()))		# should not be necessary
 		{
 			header('Location: images/' . $this->GetHandler());
+            exit;
 		}
 		elseif (preg_match('/\.css$/', $this->GetHandler()))					# should not be necessary
 		{
 			header('Location: css/' . $this->GetHandler());
+            exit;
 		}
 		elseif(0 !== strcmp($newtag = preg_replace('/\s+/', '_', $tag), $tag))
 		{
 			header("Location: ".$this->Href('', $newtag));
+            exit;
 		}
 		elseif($this->GetHandler() == 'html')
 		{
 			header('Content-type: text/html');
-			print($this->Handler($this->GetHandler()));
+			$content = $this->Handler($this->GetHandler());
 		}
 		elseif($this->GetHandler() == 'reveal')
 		{
-			print($this->Handler($this->GetHandler()));
+			$content = $this->Handler($this->GetHandler());
 		}
 		elseif( $this->GetHandler() == 'show' && pathinfo($this->GetPageTag(), PATHINFO_EXTENSION) == 'md' && $this->page['body'] != '' )
 		{
 			$this->Handler($this->handler = 'md');
-			echo $this->Header();
-			echo $this->Handler($this->GetHandler());
-		  echo $this->Footer();
+			$content = $this->Header();
+			$content .= $this->Handler($this->GetHandler());
+		    $content .= $this->Footer();
+		}
+		elseif($this->GetHandler() == 'csv')
+		{
+			header('Content-type: text/html');
+			$content = $this->Handler($this->GetHandler());
 		}
 		else
 		{
-			print $this->Header();
-
-			// Upload?
-			if (isset($_POST['action']) && $_POST['action'] == 'upload')
-			{
-				// Show files to anyone with read access, we'll check for write access if they try to delete a file.
-				if ($this->page &&
-				    $this->HasAccess('read') &&
-				    ($this->method <> 'print.xml') &&
-				    ($this->method <> 'edit'))
-				{
-					$this->CheckUploadedFiles();
-				}
-			}
-
-			print $this->handler($this->GetHandler());
-
-			print $this->Footer();
+			$content = $this->Header();
+			$content .= $this->Handler($this->GetHandler());
+			$content .= $this->Footer();
 		}
+
+        /**
+         * Use gzip compression if possible.
+         */
+        /*
+        if ( isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strstr ($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') && function_exists('gzencode') ) #38
+        {
+            // Tell the browser the content is compressed with gzip
+            header ("Content-Encoding: gzip");
+            $page_output = gzencode($content);
+            $page_length = strlen($page_output);
+        } else {
+            $page_output = $content;
+            $page_length = strlen($page_output);
+        }
+        */
+
+        $etag =  md5($content);
+        header('ETag: '.$etag);
+    	$page_length = strlen($content);
+        header('Content-Length: '.$page_length);
+
+        echo $content;
 	}
 
 	//
