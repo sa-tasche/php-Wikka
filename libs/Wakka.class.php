@@ -5228,7 +5228,7 @@ class Wakka
 		elseif ($this->GetHandler() == 'rawlist')
 		{
 			header('Content-type: text/plain');
-			print($this->handler($this->GetHandler()));
+			$content = $this->handler($this->GetHandler());
 		}
 		// grabcode page handler
 		elseif ($this->GetHandler() == 'grabcode')
