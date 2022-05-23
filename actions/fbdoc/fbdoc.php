@@ -19,7 +19,17 @@
 
 	switch ($item) {
 	case 'title':
-		print("<h3>$value</h3>");
+		if (array_key_exists('visible', $vars)) {
+			$visible = $vars['visible'];
+		} else {
+			$visible = '1';
+		}
+		$visible = $this->ReturnSafeHTML($visible);
+		$visible = filter_var($visible, FILTER_VALIDATE_BOOLEAN);
+
+		if( $visible ) {
+			print("<h2>$value</h2>");
+		}
 		break;
 
 	case 'section':
