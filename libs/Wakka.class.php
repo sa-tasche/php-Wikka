@@ -2243,17 +2243,18 @@ class Wakka
 	function ParsePageTitle($body)
 	{
 		$page_title = '';
-
 		/**
 		 * Search for {{fbdoc item="title" value="string"}} tag and
 		 * store it to the title field.  We tend to use {{fbdoc}} actions
 		 * over the built-in wikka tags. (Jeff).
 		 */
-		if (preg_match("/\{\{\s*fbdoc\s+item\=\"title\"\s+value\=\"(.*)\"\}\}/", $body, $matches))
+		$regexp = '/' . '\{\{\s*fbdoc\s+item\=\"title\"\s+value\=\"([^\"]*)\"(\s+.*)?\}\}' . '/'; 
+		if (preg_match($regexp, $body, $matches))
 		{
 			list($h_fullmatch, $h_heading) = $matches;
 			$page_title = $this->SetPageTitle($h_heading);
-		} elseif (preg_match("#(={3,6})([^=].*?)\\1#s", $body, $matches))
+		}
+		elseif (preg_match("#(={3,6})([^=].*?)\\1#s", $body, $matches))
 		{
 			list($h_fullmatch, $h_markup, $h_heading) = $matches;
 			$page_title = $this->SetPageTitle($h_heading);
