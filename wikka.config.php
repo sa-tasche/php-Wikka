@@ -67,7 +67,7 @@ $wakkaConfig = array(
 	'max_new_comment_urls' => '6',
 	'max_new_feedback_urls' => '6',
 	'utf8_compat_search' => '0',
-	'enable_breadcrumbs' => '0',
+	'enable_breadcrumbs' => '1',
 	'breadcrumb_node_delimiter' => '>',
 	'num_breadcrumb_nodes' => '5',
 	'base_url' => 'https://www.freebasic.net/wiki/wikka.php?wakka=',
