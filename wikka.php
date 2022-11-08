@@ -174,6 +174,63 @@ if(!extension_loaded('PDO')) {
 }
 
 /**
+ * Create upload folder if it does not exist
+ */
+if (!function_exists('mkdir_r'))
+{
+	function mkdir_r ($dir)
+	{
+		if (strlen($dir) == 0)
+		{
+			return 0;
+		}
+		if (is_dir($dir))
+		{
+			return 1;
+		}
+		elseif (dirname($dir) == $dir)
+		{
+			return 1;
+		}
+		return (mkdir_r(dirname($dir)) and mkdir($dir,0755));
+	}
+}
+
+/**
+ * Convert bytes to a human readable string
+ *
+ * @param int $bytes Number of bytes
+ * @param int $precision Number of decimal places to include in return string
+ * @param array $names Custom usage strings
+ * @return string formatted string rounded to $precision
+ */
+if (!function_exists('bytesToHumanReadableUsage'))
+{
+	function bytesToHumanReadableUsage($bytes, $precision = 0, $names = '')
+	{
+		if (!is_numeric($bytes) || $bytes < 0)
+		{
+			$bytes = 0;
+		}
+		if (!is_numeric($precision) || $precision < 0)
+		{
+			$precision = 0;
+		}
+		if (!is_array($names))
+		{
+			$names = array('b','Kb','Mb','Gb','Tb','Pb','Eb');
+		}
+		$level = floor(log($bytes)/log(1024));
+		$suffix = '';
+		if ($level < count($names))
+		{
+			$suffix = $names[$level];
+		}
+		return $bytes? round($bytes/pow(1024, $level), $precision) .  $suffix : $bytes;
+	}
+}
+
+/**
  * Include main library if it exists.
  * @see libs/Wakka.class.php
  */

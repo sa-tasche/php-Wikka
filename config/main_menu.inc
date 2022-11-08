@@ -1,4 +1,4 @@
-[[CategoryCategory|Categories]]
+[[DocToc|DocToc]]
 PageIndex
 RecentChanges
 RecentlyCommented

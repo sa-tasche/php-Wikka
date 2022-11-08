@@ -164,7 +164,7 @@ if ($this->UserIsOwner())
 }
 else
 {
-	echo '<em class="error">'.T_("You are not the owner of this page.").'</em>'."\n";
+	echo '<!-- <wiki-error>forbidden</wiki-error> --><em class="error">'.T_("You are not the owner of this page.").'</em>'."\n";
 }
 echo '</div>'."\n" //TODO: move to templating class
 ?>

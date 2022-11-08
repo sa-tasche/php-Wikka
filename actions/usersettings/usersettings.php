@@ -70,7 +70,7 @@ function outputChangePasswordHTML() {
     <input type="hidden" name="action" value="changepass" />';
     if (isset($passerror))
     {
-        $output .= '<em class="error">'.$passerror.'</em><br />'."\n";
+        $output .= '<!-- <wiki-error>invalid username or pwd</wiki-error> --><em class="error">'.$passerror.'</em><br />'."\n";
     }
     else if (isset($passsuccess))
     {
@@ -360,7 +360,7 @@ if ($user = $this->GetUser())
 	switch(TRUE)
 	{
 		case (isset($error)):
-			echo '<em class="error">'.$error.'</em><br />'."\n";
+			echo '<!-- <wiki-error>invalid username or pwd</wiki-error> --><em class="error">'.$error.'</em><br />'."\n";
 			break;
 		case (isset($success)):
 			echo '<em class="success">'.$success.'</em><br />'."\n";
@@ -521,6 +521,10 @@ else
 				$error = T_("Sorry, this user name is unavailable.");
 				$username_highlight = 'class="highlight"';
 				break;
+			case (isset( $this->config["accept_new_users"] ) && ($this->config["accept_new_users"] == '0')):
+				$error = ERROR_FBWIKI_REGISTRATION_DISABLED;
+				$username_highlight = INPUT_ERROR_STYLE;
+				break;
 			case (strlen($name) == 0):
 				$error = T_("Please fill in your user name.");
 				$username_highlight = 'class="highlight"';
@@ -652,7 +656,7 @@ else
 	switch (true)
 	{
 		case (isset($error)):
-			echo '<em class="error">'.$error.'</em><br />'."\n";
+			echo '<!-- <wiki-error>invalid username or pwd</wiki-error> --><em class="error">'.$error.'</em><br />'."\n";
 			break;
 		case (isset($success)):
 			echo '<em class="success">'.$success.'</em><br />'."\n";
@@ -714,7 +718,7 @@ else
 <?php
 	if (isset($newerror))
 	{
-		echo '<em class="error">'.$newerror.'</em><br />'."\n";
+		echo '<!-- <wiki-error>invalid username or pwd</wiki-error> --><em class="error">'.$newerror.'</em><br />'."\n";
 	}
 	$retrieve_password_link = 'PasswordForgotten';
 	$retrieve_password_caption = sprintf(T_("Log in with your <a href=\"%s\">password reminder</a>:"),$this->Href('', $retrieve_password_link));

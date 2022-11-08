@@ -468,6 +468,7 @@ if(!defined('ERROR_PASSWORD_TOO_SHORT')) define('ERROR_PASSWORD_TOO_SHORT', 'M�
 if(!defined('ERROR_INVALID_REVISION_DISPLAY_LIMIT')) define('ERROR_INVALID_REVISION_DISPLAY_LIMIT', 'The number of page revisions should not exceed %d.'); // %d - maximum revisions to view
 if(!defined('ERROR_INVALID_RECENTCHANGES_DISPLAY_LIMIT')) define('ERROR_INVALID_RECENTCHANGES_DISPLAY_LIMIT', 'The number of recently changed pages should not exceed %d.'); // %d - maximum changed pages to view
 if(!defined('ERROR_VALIDATION_FAILED')) if(!defined('ERROR_VALIDATION_FAILED')) define('ERROR_VALIDATION_FAILED', "Chứng thực đăng ký bị lỗi. Vui lòng thử lại!");
+if(!defined('ERROR_FBWIKI_REGISTRATION_DISABLED')) define('ERROR_FBWIKI_REGISTRATION_DISABLED', "Sorry, no new users are being accepted, please post a message in the Documentation forum requesting for an account, thanks.");
 // - success messages
 if(!defined('SUCCESS_USER_LOGGED_OUT')) define('SUCCESS_USER_LOGGED_OUT', 'Đã thoát thành công khỏi hệ thống.');
 if(!defined('SUCCESS_USER_REGISTERED')) define('SUCCESS_USER_REGISTERED', 'Đã đăng ký thành công!');

@@ -40,7 +40,8 @@
  * 			necessary) - #312 => NOT CLEAR here what to do; see also #449
  */
 
-if(!defined('MAX_EDIT_NOTE_LENGTH')) define('MAX_EDIT_NOTE_LENGTH', 50);
+if (!defined('MAX_EDIT_NOTE_LENGTH')) define('MAX_EDIT_NOTE_LENGTH', 200);
+if (!defined('EDIT_BOX_SIZE')) define('EDIT_BOX_SIZE', 80);
 if (!defined('EDIT_INVALID_CHARS')) define('EDIT_INVALID_CHARS', '| ? = &lt; &gt; / \ " % &amp;');
 
 //initialization
@@ -166,7 +167,7 @@ else if ($this->HasAccess("write") && $this->HasAccess("read"))
 		// so we use hsc_secure() on the edit note (as on the body)
 		// JW/2007-02-20: why is this? wouldn't it be  easier for the person editing to show actual characters instead of entities?
 		$edit_note_field = '<input id="note"
-		size="'.MAX_EDIT_NOTE_LENGTH.'"
+		size="'.EDIT_BOX_SIZE.'"
 		maxlength="'.MAX_EDIT_NOTE_LENGTH.'" type="text" name="note" value="'.Wakka::hsc_secure($note).'" '.$highlight_note.'/> <label for="note">'.T_("Please add a note on your edit").'</label><br />'."\n";	#427
 	}
 
@@ -220,7 +221,7 @@ else if ($this->HasAccess("write") && $this->HasAccess("read"))
 		// truncate tag to feed a backlinks-handler with the correct value. may be omited. it only works if the link to a backlinks-handler is built in the footer.
 		$this->tag = substr($this->GetPageTag(), 0, $maxtaglen);
 
-		$output  = '<em class="error">'.sprintf(T_("Page name too long! %d characters max."), $maxtaglen).'</em><br />'."\n";
+		$output  = '<!-- <wiki-error>tag too long</wiki-error> --><em class="error">'.sprintf(T_("Page name too long! %d characters max."), $maxtaglen).'</em><br />'."\n";
 		$output .= sprintf(T_("Clicking on %s will automatically truncate the page name to the correct size"), T_("Rename")).'<br /><br />'."\n";
 		$output .= $this->FormOpen('edit');
 		$output .= '<input name="newtag" size="'.MAX_TAG_LENGTH.'" value="'.$this->htmlspecialchars_ent($this->GetPageTag()).'" />';
@@ -233,6 +234,11 @@ else if ($this->HasAccess("write") && $this->HasAccess("read"))
 		// display form
 		if (!empty($error))
 		{
+			if ($error == ERROR_OVERWRITE_ALERT)
+			{
+				$output .= '<!-- <wiki-error>overwritten alert</wiki-error> -->';
+			}
+
 			$output .= '<em class="error">'.$error.'</em>'."\n";
 		}
 
@@ -272,7 +278,7 @@ else if ($this->HasAccess("write") && $this->HasAccess("read"))
 }
 else
 {
-	$message = '<em class="error">'.
+	$message = '<!-- <wiki-error>forbidden</wiki-error> --><em class="error">'.
 		sprintf(T_( "You don't have write access to this page. You might need to <a href=\"%s\">login</a> or <a href=\"%s\">register an account</a> to be able to edit this page."), $this->Href('', 'UserSettings'), $this->Href('', 'UserSettings')).
 			'</em><br />'."\n".
 			"<br />\n".

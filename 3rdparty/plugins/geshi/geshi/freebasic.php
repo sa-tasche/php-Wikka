@@ -2,86 +2,151 @@
 /*************************************************************************************
  * freebasic.php
  * -------------
- * Author: Roberto Rossi
- * Copyright: (c) 2005 Roberto Rossi (http://rsoftware.altervista.org)
- * Release Version: 1.0.9.0
- * Date Started: 2005/08/19
+ * Author: Jeff Marshall
+ * Copyright: (c) 2006 FreeBASIC Developemnt Team (http://www.freebasic.net/)
+ * Release Version: 1.0.1
+ * Date Started: 2006/09/28
  *
  * FreeBasic (http://www.freebasic.net/) language file for GeSHi.
+ * Requires patched geshi 1.0.4
  *
  * CHANGES
  * -------
- * 2005/08/19 (1.0.0)
- *  -  First Release
- *
- *
- *************************************************************************************
- *
- *     This file is part of GeSHi.
- *
- *   GeSHi is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- *   GeSHi is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with GeSHi; if not, write to the Free Software
- *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * 2007/08/22 (1.0.1)
+ *  -  updated with new keywords
+ * 2006/09/28 (1.0.0)
+ *  -  first version
  *
  ************************************************************************************/
 
 $language_data = array (
-    'LANG_NAME' => 'FreeBasic',
-    'COMMENT_SINGLE' => array(1 => "'", 2 => '#'),
+    'LANG_NAME' => 'FreeBASIC',
+    'COMMENT_SINGLE' => array(1 => "'", 2 => 'REM'),
     'COMMENT_MULTI' => array(),
-    'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
+    'CASE_KEYWORDS' => GESHI_CAPS_REPLACE,
     'QUOTEMARKS' => array('"'),
-    'ESCAPE_CHAR' => '\\',
+    'ESCAPE_CHAR' => '',
     'KEYWORDS' => array(
-        1 => array(
-            "append", "as", "asc", "asin", "asm", "atan2", "atn", "beep", "bin", "binary", "bit",
-            "bitreset", "bitset", "bload", "bsave", "byref", "byte", "byval", "call",
-            "callocate", "case", "cbyte", "cdbl", "cdecl", "chain", "chdir", "chr", "cint",
-            "circle", "clear", "clng", "clngint", "close", "cls", "color", "command",
-            "common", "cons", "const", "continue", "cos", "cshort", "csign", "csng",
-            "csrlin", "cubyte", "cuint", "culngint", "cunsg", "curdir", "cushort", "custom",
-            "cvd", "cvi", "cvl", "cvlongint", "cvs", "cvshort", "data", "date",
-            "deallocate", "declare", "defbyte", "defdbl", "defined", "defint", "deflng",
-            "deflngint", "defshort", "defsng", "defstr", "defubyte", "defuint",
-            "defulngint", "defushort", "dim", "dir", "do", "double", "draw", "dylibload",
-            "dylibsymbol", "else", "elseif", "end", "enum", "environ", 'environ$', "eof",
-            "eqv", "erase", "err", "error", "exec", "exepath", "exit", "exp", "export",
-            "extern", "field", "fix", "flip", "for", "fre", "freefile", "function", "get",
-            "getjoystick", "getkey", "getmouse", "gosub", "goto", "hex", "hibyte", "hiword",
-            "if", "iif", "imagecreate", "imagedestroy", "imp", "inkey", "inp", "input",
-            "instr", "int", "integer", "is", "kill", "lbound", "lcase", "left", "len",
-            "let", "lib", "line", "lobyte", "loc", "local", "locate", "lock", "lof", "log",
-            "long", "longint", "loop", "loword", "lset", "ltrim", "mid", "mkd", "mkdir",
-            "mki", "mkl", "mklongint", "mks", "mkshort", "mod", "multikey", "mutexcreate",
-            "mutexdestroy", "mutexlock", "mutexunlock", "name", "next", "not", "oct", "on",
-            "once", "open", "option", "or", "out", "output", "overload", "paint", "palette",
-            "pascal", "pcopy", "peek", "peeki", "peeks", "pipe", "pmap", "point", "pointer",
-            "poke", "pokei", "pokes", "pos", "preserve", "preset", "print", "private",
-            "procptr", "pset", "ptr", "public", "put", "random", "randomize", "read",
-            "reallocate", "redim", "rem", "reset", "restore", "resume",
-            "return", "rgb", "rgba", "right", "rmdir", "rnd", "rset", "rtrim", "run",
-            "sadd", "screen", "screencopy", "screeninfo", "screenlock", "screenptr",
-            "screenres", "screenset", "screensync", "screenunlock", "seek", "statement",
-            "selectcase", "setdate", "setenviron", "setmouse",
-            "settime", "sgn", "shared", "shell", "shl", "short", "shr", "sin", "single",
-            "sizeof", "sleep", "space", "spc", "sqr", "static", "stdcall", "step", "stop",
-            "str", "string", "strptr", "sub", "swap", "system", "tab", "tan",
-            "then", "threadcreate", "threadwait", "time", "timer", "to", "trans",
-            "trim", "type", "ubound", "ubyte", "ucase", "uinteger", "ulongint", "union",
-            "unlock", "unsigned", "until", "ushort", "using", "va_arg", "va_first",
-            "va_next", "val", "val64", "valint", "varptr", "view", "viewprint", "wait",
-            "wend", "while", "width", "window", "windowtitle", "with", "write", "xor",
-            "zstring", "explicit", "escape", "true", "false"
+        1 => array(),
+        3 => array(
+            '__PATH__', '__TIME__', '__LINE__', '__FUNCTION_NQ__', '__FUNCTION__', 
+            '__FILE_NQ__', '__FILE__', '__FB_WIN32__', '__FB_VER_PATCH__', 
+            '__FB_VER_MINOR__', '__FB_VER_MAJOR__', '__FB_VERSION__', 
+            '__FB_SIGNATURE__', '__FB_OUT_OBJ__', '__FB_OUT_LIB__', '__FB_OUT_EXE__', 
+            '__FB_OUT_DLL__', '__FB_OPTION_PRIVATE__', '__FB_OPTION_EXPLICIT__', 
+            '__FB_OPTION_ESCAPE__', '__FB_OPTION_DYNAMIC__', '__FB_OPTION_BYVAL__', 
+            '__FB_MT__', '__FB_MIN_VERSION__', '__FB_MAIN__', '__FB_LINUX__', 
+            '__FB_LANG__', '__FB_ERR__', '__FB_DOS__', '__FB_DEBUG__', 
+            '__FB_BUILD_DATE__', '__FB_BIGENDIAN__', '__FB_ARGV__', '__FB_ARGC__', 
+            '__DATE__', 
+
+            'ZString', 
+
+            'Year', 
+
+            'Xor', 
+
+            'WString', 'WStr', 'WSpace', 'Write', 'WOct', 'With', 'WInput', 
+            'WindowTitle', 'Window', 'Width', 'While', 'WHex', 'Wend', 'WeekdayName', 
+            'Weekday', 'WChr', 'WBin', 'Wait', 
+
+            'View Print', 'View', 'VarPtr', 'ValULng', 'ValUInt', 'ValLng', 'ValInt', 
+            'Var', 'Val', 'va_next', 'va_first', 'va_arg', 
+
+            'Using', 'UShort', 'Until', 'Unsigned', 'Unlock', 'Union', 'ULongInt', 
+            'UInteger', 'UCase', 'UByte', 'UBound', 
+
+            'TypeOf', 'Type', 'Trim', 'Trans', 'To', 'TimeValue', 'TimeSerial', 
+            'Timer', 'Time', 'ThreadWait', 'ThreadCreate', 'This', 'Then', 'Tan', 
+            'Tab', 
+
+            'System', 'Swap', 'Sub', 'StrPtr', 'String', 'Str', 'Stop', 'Step', 
+            'Stdcall', 'Static', 'Sqr', 'Spc', 'Space', 'Sleep', 'SizeOf', 'Single', 
+            'Sin', 'Shr', 'Short', 'Shl', 'Shell', 'Shared', 'Sgn', 'SetTime', 
+            'SetMouse', 'SetEnviron', 'SetDate', 'Select Case', 'Select', 'Seek', 
+            'Second', 'Scrn', 'ScreenUnlock', 'ScreenSync', 'ScreenSet', 'ScreenRes', 
+            'ScreenPtr', 'ScreenLock', 'ScreenList', 'ScreenInfo', 'ScreenGLProc', 
+            'ScreenEvent', 'ScreenCopy', 'ScreenControl', 'Screen', 'Scope', 'SAdd', 
+
+            'Run', 'RTrim', 'RSet', 'Rnd', 'RmDir', 'Right', 'Return', 'Resume Next', 
+            'Resume', 'Restore', 'Reset', 'Rem', 'ReDim', 'Reallocate', 'Read', 
+            'Randomize', 'Random', 'RGBA', 'RGB', 
+
+            'Put', 'Public:', 'Public', 'Ptr', 'PSet', 'Protected:', 'Protected', 
+            'ProcPtr', 'Private:', 'Private', 'Print Using', 'Print', 
+            'Property', 'PReset', 'Preserve', 'Pos', 'PokeS', 'PokeI', 'Poke', 
+            'Pointer', 'Point', 'PMap', 'Pipe', 'PeekS', 'PeekI', 'Peek', 'PCopy', 
+            'Pascal', 'Palette', 'Paint', 
+
+            'Overload', 'Output', 'Out', 'Or', 'Option Static', 'Option Private', 
+            'Option NoKeyword', 'Option Explicit', 'Option Escape', 'Option Dynamic', 
+            'Option ByVal', 'Option Base', 'Option', 'Operator', 'Open Scrn', 
+            'Open Pipe', 'Open Lpt', 'Open Err', 'Open Cons', 'Open Com', 'Open', 
+            'On Error', 'On', 'OffsetOf', 'Oct', 
+
+            'Now', 'Not', 'NoKeyword', 'New', 'Next', 'Namespace', 'Name', 
+
+            'MutexUnlock', 'MutexLock', 'MutexDestroy', 'MutexCreate', 'MultiKey', 
+            'MonthName', 'Month', 'Mod', 'MKShort', 'MKS', 'MKLongInt', 'MKL', 'MKI', 
+            'MkDir', 'MKD', 'Minute', 'Mid', 
+
+            'LTrim', 'LSet', 'Lpt', 'LPrint', 'Loop', 'LongInt', 'Long', 'Log', 'LOF', 
+            'Lock', 'Locate', 'Local', 'LOC', 'Line Input', 'Line', 
+            'Lib', 'Let', 'Len', 'Left', 'LCase', 'LBound', 'LoWord', 'LoByte', 
+
+            'Kill', 
+
+            'IsDate', 'Is', 'Integer', 'Int', 'InStr', 'Input()', 'Input', 
+            'Inp', 'Inkey', 'Import', 'Imp', 'ImageDestroy', 'ImageConvertRow', 
+            'ImageCreate', 'IIf', 'If', 
+
+            'Hour', 'Hex', 'HiWord', 'HiByte', 
+
+            'Goto', 'GoSub', 'GetMouse', 'GetKey', 'GetJoystick', 'Get', 
+
+            'Function', 'FreeFile', 'Fre', 'Format', 'For', 'Flip', 'Fix', 'FileLen', 
+            'FileExists', 'FileDateTime', 'FileCopy', 'FileAttr', 'Field', 
+
+            'Extern', 'Export', 'Explicit', 'Exp', 'Exit While', 'Exit Sub', 
+            'Exit Select', 'Exit Operator', 'Exit Function', 'Exit For', 'Exit Do', 
+            'Exit Destructor', 'Exit Constructor', 'Exit', 'ExePath', 'Exec', 
+            'Escape', 'Error', 'Err', 'Ermn', 'Erl', 'Erfn', 'Erase', 'Eqv', 'EOF', 
+            'Environ', 'Enum', 'End With', 'End Sub', 'End Scope', 'End Operator', 
+            'End Namespace', 'End If', 'End Function', 'End Enum', 'End Destructor', 
+            'End Constructor', 'End', 'Encoding', 'ElseIf', 'Else', 
+
+            'Dynamic', 'DyLibSymbol', 'DyLibLoad', 'DyLibFree', 'Draw String', 'Draw', 
+            'Double', 'Do', 'Dir', 'Dim', 'Destructor', 'Delete', 'DefUShort', 
+            'DefULngInt', 'DefUInt', 'DefUByte', 'DefStr', 'DefSng', 'DefShort', 
+            'DefLngInt', 'DefLng', 'DefInt', 'defined', 'DefDbl', 'DefByte', 
+            'Declare', 'Deallocate', 'Day', 'DateValue', 'DateSerial', 'DatePart', 
+            'DateDiff', 'DateAdd', 'Date', 'Data', 
+
+            'CVShort', 'CVS', 'CVLongInt', 'CVL', 'CVI', 'CVD', 'Custom', 'CUShort', 
+            'CurDir', 'CUnsg', 'CULngInt', 'CULng', 'CUInt', 'CUByte', 'CsrLin', 
+            'CSng', 'CSign', 'CShort', 'CPtr', 'Cos', 'Continue', 'Constructor', 
+            'Const', 'Cons', 'CondWait', 'CondSignal', 'CondDestroy', 'CondCreate', 
+            'CondBroadcast', 'Common', 'Command', 'Com', 'Color', 'Cls', 'Close', 
+            'CLngInt', 'CLng', 'Clear', 'Class', 'Circle', 'CInt', 'Chr', 'ChDir', 
+            'Chain', 'CDecl', 'CDbl', 'CByte', 'Cast', 'Case Else', 'Case', 'CallS', 
+            'CAllocate', 'Call', 
+
+            'ByVal', 'Byte', 'ByRef', 'BSave', 'BLoad', 'Binary', 'Bin', 'Beep', 
+            'Base', 'BitSet', 'BitReset', 'Bit', 
+
+            'Atn', 'Atan2', 'Asm', 'Asin', 'Asc', 'As', 'Append', 'Any', 'And', 
+            'Alpha', 'Allocate', 'Alias', 'Acos', 'Access', 'Abs', 'AssertWarn', 
+            'Assert', 
+
+            '$Static', '$Dynamic'
+
+            /*
+            ,
+            '#undef', '#print', '#pragma', '#macro', '#line', '#libpath', '#include', 
+            '#inclib', '#ifndef', '#ifdef', '#if', '#error', '#endmacro', '#endif', 
+            '#elseif', '#else', '#define'
+            */
+
             )
         ),
     'SYMBOLS' => array(
@@ -89,15 +154,18 @@ $language_data = array (
         ),
     'CASE_SENSITIVE' => array(
         GESHI_COMMENTS => false,
-        1 => false
+        1 => false,
+        3 => false
         ),
     'STYLES' => array(
         'KEYWORDS' => array(
-            1 => 'color: #b1b100;'
+            1 => 'color: #a1a100;',
+            3 => 'color: #000066;'
             ),
         'COMMENTS' => array(
             1 => 'color: #808080;',
-            2 => 'color: #339933;'
+            2 => 'color: #808080;',
+            3 => 'color: #808080;'
             ),
         'BRACKETS' => array(
             0 => 'color: #66cc66;'
@@ -109,7 +177,6 @@ $language_data = array (
             0 => 'color: #cc66cc;'
             ),
         'METHODS' => array(
-            0 => 'color: #66cc66;'
             ),
         'SYMBOLS' => array(
             0 => 'color: #66cc66;'
@@ -123,11 +190,9 @@ $language_data = array (
             )
         ),
     'URLS' => array(
-        1 => ''
         ),
-    'OOLANG' => true,
+    'OOLANG' => false,
     'OBJECT_SPLITTERS' => array(
-        1 => '.'
         ),
     'REGEXPS' => array(
         ),

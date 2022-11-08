@@ -55,14 +55,14 @@ if (!$this->HasAccess('read'))
 {
     // Set HTTP 403 error
     header('Content-Type: text/html; charset=utf-8', true, 403);
-	echo '<p><em class="error">'.T_("You are not allowed to read this page.").'</em></p>';
+	echo '<!-- <wiki-error>forbidden</wiki-error> --><p><em class="error">'.T_("You are not allowed to read this page.").'</em></p>';
 	echo "\n".'</div><!--closing page content-->'."\n";
 }
 else if(!$this->IsWikiName($this->GetPageTag()))
 {
     // Set HTTP 404 error 
     header('Content-Type: text/html; charset=utf-8', true, 404);
-	echo '<p><em class="error">'.sprintf(T_("This page name is invalid. Valid page names must not contain the characters %s."), SHOW_INVALID_CHARS).'</em></p>';
+	echo '<!-- <wiki-error>not found</wiki-error> --><p><em class="error">'.sprintf(T_("This page name is invalid. Valid page names must not contain the characters %s."), SHOW_INVALID_CHARS).'</em></p>';
 	echo "\n".'</div><!--closing page content-->'."\n";
 }
 else
@@ -123,6 +123,13 @@ else
 		//clear floats at the end of the main div
 		echo "\n".'<div style="clear: both"></div>'."\n";
 		echo "\n".'</div><!--closing page content-->'."\n\n";
+
+		if( $this->GetConfigValue( 'show_attached_files' ) == 1 )
+		{
+			print '<div class="commentsheader">';
+			$this->ShowAttachedFiles( );
+			print '</div>';
+		}
 
 		if ($this->GetConfigValue('hide_comments') != 1 &&
 			$this->HasAccess('comment_read')

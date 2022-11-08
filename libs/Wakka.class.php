@@ -64,6 +64,11 @@ if (!defined('PATTERN_REPLACE_IMG_WITH_ALTTEXT')) define('PATTERN_REPLACE_IMG_WI
 if (!defined('PATTERN_INVALID_ID_CHARS')) define ('PATTERN_INVALID_ID_CHARS', '/[^A-Za-z0-9_:.-\s]/');
 /**#@-*/
 
+if(!defined('NO_FILE_UPLOADED')) define ('NO_FILE_UPLOADED', "<em class='error'>No file uploaded</em>");
+if(!defined('ERROR_DURING_FILE_UPLOAD')) define ('ERROR_DURING_FILE_UPLOAD', "<em class='error'>There was an error uploading your file.  Please try again.</em>");
+if(!defined('ERROR_MAX_FILESIZE_EXCEEDED')) define('ERROR_MAX_FILESIZE_EXCEEDED', "<em class='error'>Attempted file upload was too big.  Maximum allowed size is %d MB.</em>"); 
+if(!defined('ERROR_FILE_EXISTS')) define('ERROR_FILE_EXISTS', "<em class='error'>There is already a file named <tt>%s</tt>. Please rename before uploading or delete the existing file first.</em>");
+
 /**#@+
  * String constant defining a regularly used bit of constant text.
  */
@@ -2238,7 +2243,18 @@ class Wakka
 	function ParsePageTitle($body)
 	{
 		$page_title = '';
-		if (preg_match("#(={3,6})([^=].*?)\\1#s", $body, $matches))
+		/**
+		 * Search for {{fbdoc item="title" value="string"}} tag and
+		 * store it to the title field.  We tend to use {{fbdoc}} actions
+		 * over the built-in wikka tags. (Jeff).
+		 */
+		$regexp = '/' . '\{\{\s*fbdoc\s+item\=\"title\"\s+value\=\"([^\"]*)\"(\s+.*)?\}\}' . '/'; 
+		if (preg_match($regexp, $body, $matches))
+		{
+			list($h_fullmatch, $h_heading) = $matches;
+			$page_title = $this->SetPageTitle($h_heading);
+		}
+		elseif (preg_match("#(={3,6})([^=].*?)\\1#s", $body, $matches))
 		{
 			list($h_fullmatch, $h_markup, $h_heading) = $matches;
 			$page_title = $this->SetPageTitle($h_heading);
@@ -3736,7 +3752,7 @@ class Wakka
         function wrapHandlerError($errorMessage)
         {
                 $errorMessage = $this->htmlspecialchars_ent(trim($errorMessage));
-                $errorMessage = '<div id="content"><em class="error">'.$errorMessage.'</em></div>';
+                $errorMessage = '<!-- <wiki-error>handler error</wiki-error> --><div id="content"><em class="error">'.$errorMessage.'</em></div>';
 
                 return $errorMessage;
         }
@@ -3796,7 +3812,7 @@ class Wakka
 		// directory traversal or XSS (via handler *name*)
 		if (!preg_match('/^([a-zA-Z0-9_.-]+)$/', $formatter)) # see also #34
 		{
-			$out = '<em class="error">'.T_("Unknown formatter; the formatter name must not contain special characters.").'</em>';	# [SEC]
+			$out = '<!-- <wiki-error>unknown action</wiki-error> --><em class="error">'.T_("Unknown formatter; the formatter name must not contain special characters.").'</em>';	# [SEC]
 		}
 		else
 		{
@@ -4510,7 +4526,8 @@ class Wakka
 
 		// set default tag & check if user is owner
 		if (!$tag = trim($tag)) $tag = $this->GetPageTag();
-		if ($this->GetPageOwner($tag) == $this->GetUserName()) return TRUE;
+
+		return ($this->GetPageOwner($tag) == $this->GetUserName());
 	}
 
 	/**
@@ -5218,6 +5235,12 @@ class Wakka
 			header('Content-type: text/plain');
 			$content = $this->Handler($this->GetHandler());
 		}
+		// list page handler
+		elseif ($this->GetHandler() == 'rawlist')
+		{
+			header('Content-type: text/plain');
+			$content = $this->handler($this->GetHandler());
+		}
 		// grabcode page handler
 		elseif ($this->GetHandler() == 'grabcode')
 		{
@@ -5288,6 +5311,165 @@ class Wakka
         header('Content-Length: '.$page_length);
 
         echo $content;
+	}
+
+	//
+	//
+	//
+	function ListUploadedFiles( $upload_path )
+	{
+    	$num = 0;
+    	
+    	$dir = opendir( $upload_path );
+    	
+    	while( $file = readdir( $dir ) ) 
+    	{
+		// Ignore any files beginning with '.', including '.' and '..'
+		if (preg_match('/^\\./', $file))
+	        	continue;
+	        	
+			++$num;
+                
+			if( $this->IsAdmin( ) ) 
+            	$delete_link = '<a href="' . 
+            				   $this->href( 'files.xml', 
+            				   				$this->GetPageTag( ), 
+            				   				'action=delete&amp;file=' . urlencode( $file ) ) . 
+            				   '">x</a>';
+            else 
+            	$delete_link = "";
+            
+            $download_link = '<a href="' . 
+            				 $this->href( 'files.xml', 
+										  $this->GetPageTag( ), 
+            								'action=download&amp;file=' . rawurlencode($file) ) . 
+            				 '">' . $file . '</a>';
+            
+            $size = bytesToHumanReadableUsage( filesize( $upload_path . '/' . $file ) );
+            
+            $date = date( 'n/d/Y g:i a', filemtime( $upload_path . '/' . $file ) );
+
+            print  '<tr>
+					<td valign="top" align="center">&nbsp;&nbsp;' . $delete_link . '&nbsp;&nbsp;</td>
+                    <td valign="top">' . $download_link . '</td>
+					<td valign="top">&nbsp;<font size="-1" color="gray">' . $size . '</font></td>
+					<td valign="top">&nbsp;<font size="-1" color="gray">' . $date . '</font></td>
+					</tr>';
+        }
+    
+    	closedir( $dir );
+
+        return $num;
+    }
+
+	//
+	//
+	//
+	function ShowAttachedFiles( )
+	{
+   		if( !$this->HasAccess('write') )
+   			return;
+
+    	$upload_path = $this->config['upload_path'] . '/'. $this->GetPageTag( );
+
+    	$max_upload_size = $this->config[ 'max_upload_size' ];
+
+		// Table of uploaded/attached files
+        print  '<table cellspacing="0" cellpadding="0">
+				<tr>
+				<td>&nbsp;</td>
+				<td bgcolor="gray" valign="bottom" align="center"><font color="white" size="-2">Attachment</font></td>
+				<td bgcolor="gray" valign="bottom" align="center"><font color="white" size="-2">Size</font></td>
+				<td bgcolor="gray" valign="bottom" align="center"><font color="white" size="-2">Date Added</font></td>
+				</tr>';
+
+    	// files list
+    	if( is_dir( $upload_path ) )
+    		$files = $this->ListUploadedFiles( $upload_path );
+    	else
+    		$files = 0;
+    	
+    	if( $files == 0 )
+    		print "<tr><td>&nbsp;</td><td colspan='3' align='center'><font color='gray' size='-1'><em>&nbsp;&nbsp;&nbsp;</em></font></td></tr>";
+    	else
+    		print "<tr><td>&nbsp;</td></tr>";
+    	
+		// upload form
+    	if( $max_upload_size > 0 )
+    	{
+			echo $this->FormOpen( '', '', 'post', '', '', TRUE );
+
+        	print  '<tr>
+				<td>&nbsp;</td>
+				<td colspan="4" valign="top" align="right" nowrap><em>
+               	    <input type="hidden" name="action" value="upload"></input>
+					<input type="hidden" name="MAX_FILE_SIZE" value="' . $max_upload_size . '">
+                   	<font color="gray" size="-2">add new attachment:
+					<input type="file" name="file" style="padding: 0px; margin: 0px; font-size: 8px; height: 15px"></input>
+                   	<input type="submit" value="+" style="padding: 0px; margin: 0px; font-size: 8px; height: 15px"></input>
+					</font></em> 
+				</td>
+				</tr>';
+				
+	    	echo $this->FormClose( );
+	    }
+
+		print '</table>';
+	}
+   
+	function CheckUploadedFiles( )
+   	{
+		$upload_path = $this->config['upload_path'] . '/' . $this->GetPageTag( );	
+		$max_upload_size = $this->config[ 'max_upload_size' ];
+
+	    if( !is_dir( $upload_path ) ) 
+	    	mkdir_r( $upload_path );
+
+	    // upload action
+	    $uploaded = $_FILES['file'];
+
+		switch( $_FILES['file']['error'] )
+		{
+		case 0:
+			if( $_FILES["file"]["size"] > $max_upload_size ) 
+			{
+				echo sprintf(ERROR_MAX_FILESIZE_EXCEEDED, bytesToHumanReadableUsage($max_upload_size));
+			 	unlink( $uploaded['tmp_name'] );
+			} 
+			else 
+			{	
+				$strippedname = str_replace( "'", '', $uploaded['name'] );
+				$strippedname = stripslashes( $strippedname );
+
+				$destfile = $upload_path . '/' . $strippedname;
+
+				if( !file_exists( $destfile ) )
+				{
+					if (!move_uploaded_file($uploaded['tmp_name'], $destfile))
+					{
+						echo(ERROR_DURING_FILE_UPLOAD . "<br />\n");
+					}
+				}
+				else
+				{
+					echo sprintf(ERROR_FILE_EXISTS, $strippedname);
+				}
+			}
+			break;
+
+		case 1:
+		case 2: // File was too big.... as reported by the browser, respecting MAX_FILE_SIZE
+			echo sprintf(ERROR_MAX_FILESIZE_EXCEEDED, bytesToHumanReadableUsage($max_upload_size));
+			break;
+
+		case 3:
+			echo ERROR_DURING_FILE_UPLOAD;
+			break;
+
+		case 4:
+			echo NO_FILE_UPLOADED;
+			break;
+		}
 	}
 }
 ?>

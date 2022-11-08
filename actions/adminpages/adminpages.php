@@ -55,7 +55,8 @@ if(!defined('ADMINPAGES_DEFAULT_URL_LENGTH')) define('ADMINPAGES_DEFAULT_URL_LEN
 if(!defined('ADMINPAGES_DEFAULT_TERMINATOR')) define('ADMINPAGES_DEFAULT_TERMINATOR', '&#8230;'); # standard symbol replacing truncated text (ellipsis) JW 2005-07-19
 if(!defined('ADMINPAGES_ALTERNATE_ROW_COLOR')) define('ADMINPAGES_ALTERNATE_ROW_COLOR', '1'); # switch alternate row color
 if(!defined('ADMINPAGES_STAT_COLUMN_COLOR')) define('ADMINPAGES_STAT_COLUMN_COLOR', '1'); # switch color for statistics columns
-if(!defined('ADMINPAGES_MAX_EDIT_NOTE_LENGTH')) define('ADMINPAGES_MAX_EDIT_NOTE_LENGTH', '50');
+if(!defined('ADMINPAGES_MAX_EDIT_NOTE_LENGTH')) define('ADMINPAGES_MAX_EDIT_NOTE_LENGTH', '200');
+if(!defined('ADMINPAGES_EDIT_BOX_SIZE')) define('ADMINPAGES_EDIT_BOX_SIZE', '80');
 if(!defined('ADMINPAGES_DEFAULT_START_YEAR')) define('ADMINPAGES_DEFAULT_START_YEAR', 'YYYY');
 if(!defined('ADMINPAGES_DEFAULT_START_MONTH')) define('ADMINPAGES_DEFAULT_START_MONTH', 'MM');
 if(!defined('ADMINPAGES_DEFAULT_START_DAY')) define('ADMINPAGES_DEFAULT_START_DAY', 'DD');   
@@ -235,7 +236,7 @@ if ($this->IsAdmin($this->GetUser()))
 				<?php if($errors < count($tags)) { ?>
 					<tr>
 						<td>
-							<input type="text" name="comment" value="" size="<?php echo ADMINPAGES_MAX_EDIT_NOTE_LENGTH; ?>" /> <?php echo T_("Please enter a comment, or leave blank for default"); ?> <br/><br/>
+							<input type="text" name="comment" value="" size="<?php echo ADMINPAGES_EDIT_BOX_SIZE; ?>" maxlength="<?php echo ADMINPAGES_MAX_EDIT_NOTE_LENGTH; ?>" /> <?php echo T_("Please enter a comment, or leave blank for default"); ?> <br/><br/>
 						</td>
 					</tr>
 				<?php } ?>

@@ -183,7 +183,6 @@ if(!defined('ADMINPAGES_DEFAULT_END_DAY')) define('ADMINPAGES_DEFAULT_END_DAY', 
 if(!defined('ADMINPAGES_DEFAULT_END_HOUR')) define('ADMINPAGES_DEFAULT_END_HOUR', 'hh');
 if(!defined('ADMINPAGES_DEFAULT_END_MINUTE')) define('ADMINPAGES_DEFAULT_END_MINUTE', 'mm');
 if(!defined('ADMINPAGES_DEFAULT_END_SECOND')) define('ADMINPAGES_DEFAULT_END_SECOND', 'ss');
-if(!defined('ADMINPAGES_MAX_EDIT_NOTE_LENGTH')) define('ADMINPAGES_MAX_EDIT_NOTE_LENGTH', '50');
 if(!defined('ADMINPAGES_REVISIONS_ICON')) define('ADMINPAGES_REVISIONS_ICON', 'images/icons/edit.png');
 if(!defined('ADMINPAGES_COMMENTS_ICON')) define('ADMINPAGES_COMMENTS_ICON', 'images/icons/comment.png');
 if(!defined('ADMINPAGES_HITS_ICON')) define('ADMINPAGES_HITS_ICON', 'images/icons/star.png');
@@ -868,6 +867,7 @@ if(!defined('ERROR_PASSWORD_TOO_SHORT')) define('ERROR_PASSWORD_TOO_SHORT', 'Sor
 if(!defined('ERROR_INVALID_REVISION_DISPLAY_LIMIT')) define('ERROR_INVALID_REVISION_DISPLAY_LIMIT', 'The number of page revisions should not exceed %d.'); // %d - maximum revisions to view
 if(!defined('ERROR_INVALID_RECENTCHANGES_DISPLAY_LIMIT')) define('ERROR_INVALID_RECENTCHANGES_DISPLAY_LIMIT', 'The number of recently changed pages should not exceed %d.'); // %d - maximum changed pages to view
 if(!defined('ERROR_VALIDATION_FAILED')) define('ERROR_VALIDATION_FAILED', "Registration validation failed, please try again!");
+if(!defined('ERROR_FBWIKI_REGISTRATION_DISABLED')) define('ERROR_FBWIKI_REGISTRATION_DISABLED', "Sorry, no new users are being accepted, please post a message in the Documentation forum requesting for an account, thanks.");
 // - success messages
 if(!defined('SUCCESS_USER_LOGGED_OUT')) define('SUCCESS_USER_LOGGED_OUT', 'You have successfully logged out.');
 if(!defined('SUCCESS_USER_REGISTERED')) define('SUCCESS_USER_REGISTERED', 'You have successfully registered!');
@@ -1125,8 +1125,6 @@ if(!defined('SHOWCODE_LINK')) define('SHOWCODE_LINK', 'View formatting code for 
 if(!defined('SHOWCODE_LINK_TITLE')) define('SHOWCODE_LINK_TITLE', 'Click to view page formatting code'); // @@@ TODO 'View page formatting code'
 if(!defined('EDIT_COMMENT_TIMESTAMP_CAPTION')) define('EDIT_COMMENT_TIMESTAMP_CAPTION', '(%s)'); // %s timestamp
 if(!defined('ERROR_INVALID_PAGEID')) define('ERROR_INVALID_PAGEID', 'The revision id does not exist for the requested page');
-if(!defined('MAX_TAG_LENGTH')) define('MAX_TAG_LENGTH', 75);
-if(!defined('MAX_EDIT_NOTE_LENGTH')) define('MAX_EDIT_NOTE_LENGTH', 50);
 if(!defined('INPUT_SUBMIT_PREVIEW')) define('INPUT_SUBMIT_PREVIEW', 'Preview');
 if(!defined('INPUT_SUBMIT_RENAME')) define('INPUT_SUBMIT_RENAME', 'Rename');
 /**#@-*/

@@ -96,6 +96,8 @@ define('GESHI_CAPS_NO_CHANGE', 0);
 define('GESHI_CAPS_UPPER', 1);
 /** Leave keywords found as the case that they are */
 define('GESHI_CAPS_LOWER', 2);
+define('GESHI_CAPS_CAPITALIZE', 3);
+define('GESHI_CAPS_REPLACE', 4);
 
 // Link style constants
 /** Links in the source in the :link state */
@@ -3015,7 +3017,7 @@ class GeSHi {
                                         } else {
                                             $attributes = ' class="co' . $comment_key . '"';
                                         }
-                                        $test_str = "<span$attributes>" . $this->hsc($this->change_case($comment_mark));
+                                        $test_str = "<span$attributes>" . $this->hsc($this->change_case($comment_mark, $comment_mark));
                                     } else {
                                         $test_str = $this->hsc($comment_mark);
                                     }
@@ -3193,15 +3195,20 @@ class GeSHi {
      * Changes the case of a keyword for those languages where a change is asked for
      *
      * @param  string $instr The keyword to change the case of
+     * @param  string $keyword The keyword as given in the language data
      * @return string The keyword with its case changed
      * @since  1.0.0
      */
-    protected function change_case($instr) {
+    protected function change_case($instr, $keyword) {
         switch ($this->language_data['CASE_KEYWORDS']) {
             case GESHI_CAPS_UPPER:
                 return strtoupper($instr);
             case GESHI_CAPS_LOWER:
                 return strtolower($instr);
+            case GESHI_CAPS_CAPITALIZE:
+                return ucfirst(strtolower($instr));
+            case GESHI_CAPS_REPLACE:
+                return $keyword;
             default:
                 return $instr;
         }
@@ -3218,8 +3225,21 @@ class GeSHi {
      */
     protected function handle_keyword_replace($match) {
         $k = $this->_kw_replace_group;
-        $keyword = $match[0];
+
         $keyword_match = $match[1];
+
+        // Get "real" keyword from language data - to be inserted in place of the matched keyword.
+        // This allows keywords to be normalized in case-insensitive languages using GESHI_CAPS_REPLACE.
+        $keyword = '';
+        if (!$this->language_data['CASE_SENSITIVE'][$k]) {
+            foreach ($this->language_data['KEYWORDS'][$k] as $keyword) {
+                if (strcasecmp($keyword, $keyword_match) == 0) {
+                    break;
+                }
+            }
+        } else {
+            $keyword = $keyword_match;
+        }
 
         $before = '';
         $after = '';
@@ -3265,7 +3285,7 @@ class GeSHi {
             }
         }
 
-        return $before . '<|/'. $k .'/>' . $this->change_case($keyword) . '|>' . $after;
+        return $before . '<|/'. $k .'/>' . $this->change_case($keyword_match, $keyword) . '|>' . $after;
     }
 
     /**

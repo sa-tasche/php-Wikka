@@ -455,6 +455,7 @@ if(!defined('ERROR_PASSWORD_TOO_SHORT')) define('ERROR_PASSWORD_TOO_SHORT', 'Sor
 if(!defined('ERROR_INVALID_INVITATION_CODE')) define('ERROR_INVALID_INVITATION_CODE', 'Dit is a prive wiki, alleen uitgenodigden kunnen een account registreren! Neem contact op met de beheerder van deze website voor een uitnodigindscode.');
 if(!defined('ERROR_INVALID_REVISION_DISPLAY_LIMIT')) define('ERROR_INVALID_REVISION_DISPLAY_LIMIT', 'Het aantal paginarevisies mag niet groter zijn dan %d.'); // %d - maximum revisions to view
 if(!defined('ERROR_INVALID_RECENTCHANGES_DISPLAY_LIMIT')) define('ERROR_INVALID_RECENTCHANGES_DISPLAY_LIMIT', 'Het aantal recentlelijk gewijzigde pagina\'s mag niet groter zijn dan %d.'); // %d - maximum changed pages to view
+if(!defined('ERROR_FBWIKI_REGISTRATION_DISABLED')) define('ERROR_FBWIKI_REGISTRATION_DISABLED', "Sorry, no new users are being accepted, please post a message in the Documentation forum requesting for an account, thanks.");
 // - success messages
 if(!defined('SUCCESS_USER_LOGGED_OUT')) define('SUCCESS_USER_LOGGED_OUT', 'Je hebt jezelf successvol uitgelogd.');
 if(!defined('SUCCESS_USER_REGISTERED')) define('SUCCESS_USER_REGISTERED', 'Je hebt jezelf successvol geregistreerd!');
